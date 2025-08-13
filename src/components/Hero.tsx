@@ -19,7 +19,7 @@ export default function Hero() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <div className="space-y-4">
-              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold text-neutral-800 leading-tight">
+              <h1 className=" font-playfair text-4xl md:text-5xl lg:text-6xl font-semibold text-neutral-800 leading-tight">
                 Real Estate Photography
               </h1>
               <p className="text-xl text-neutral-600 font-light">
@@ -43,7 +43,7 @@ export default function Hero() {
               <Button
                 variant="outline"
                 onClick={() => scrollToSection('contact')}
-                className="inline-flex items-center justify-center px-8 py-3 border border-neutral-300 text-white-800 font-medium rounded-sm hover:bg-neutral-50 transition-colors"
+                className="inline-flex items-center justify-center px-8 py-3 bg-neutral-800 text-white font-medium rounded-sm  hover:bg-neutral-700  transition-colors"
                 data-testid="button-get-quote"
               >
                 Get Quote
