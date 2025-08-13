@@ -15,7 +15,7 @@ function Calendar({
 }: CalendarProps) {
   // Detect if the new API is available (v9+)
   const isNewDayPicker = React.useMemo(() => {
-    // @ts-ignore
+    // @ts-expect-error
     return typeof DayPicker.defaultProps?.components?.PreviousMonthButton !== "undefined";
   }, []);
 

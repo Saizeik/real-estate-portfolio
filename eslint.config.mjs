@@ -15,6 +15,7 @@ const eslintConfig = [
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "react/no-unescaped-entities": "off",
+      "@typescript-eslint/ban-ts-comment": "off", // disables @ts-ignore/@ts-expect-error warnings
     },
   },
 ];
