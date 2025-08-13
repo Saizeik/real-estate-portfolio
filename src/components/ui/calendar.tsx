@@ -1,11 +1,11 @@
-import * as React from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker } from "react-day-picker"
+import * as React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { DayPicker, DayPickerProps } from "react-day-picker";
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>
+export type CalendarProps = DayPickerProps;
 
 function Calendar({
   className,
@@ -13,6 +13,58 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
+  // Detect if the new API is available (v9+)
+  const isNewDayPicker = React.useMemo(() => {
+    // @ts-ignore
+    return typeof DayPicker.defaultProps?.components?.PreviousMonthButton !== "undefined";
+  }, []);
+
+  const components = isNewDayPicker
+    ? {
+        PreviousMonthButton: (buttonProps: any) => (
+          <button
+            {...buttonProps}
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "absolute left-1 top-1/2 -translate-y-1/2 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+            )}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        ),
+        NextMonthButton: (buttonProps: any) => (
+          <button
+            {...buttonProps}
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+            )}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        ),
+      }
+    : {
+        IconLeft: ({ className, ...rest }: any) => (
+          <ChevronLeft
+            className={cn(
+              "h-4 w-4 absolute left-1 top-1/2 -translate-y-1/2",
+              className
+            )}
+            {...rest}
+          />
+        ),
+        IconRight: ({ className, ...rest }: any) => (
+          <ChevronRight
+            className={cn(
+              "h-4 w-4 absolute right-1 top-1/2 -translate-y-1/2",
+              className
+            )}
+            {...rest}
+          />
+        ),
+      };
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -22,13 +74,13 @@ function Calendar({
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center",
+        nav: "relative flex items-center justify-center space-x-1", // relative to position buttons
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
+        nav_button_previous: "absolute left-1 top-1/2 -translate-y-1/2",
+        nav_button_next: "absolute right-1 top-1/2 -translate-y-1/2",
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
         head_cell:
@@ -51,18 +103,12 @@ function Calendar({
         day_hidden: "invisible",
         ...classNames,
       }}
-      components={{
-        IconLeft: ({ className, ...props }) => (
-          <ChevronLeft className={cn("h-4 w-4", className)} {...props} />
-        ),
-        IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn("h-4 w-4", className)} {...props} />
-        ),
-      }}
+      components={components}
       {...props}
     />
-  )
+  );
 }
-Calendar.displayName = "Calendar"
 
-export { Calendar }
+Calendar.displayName = "Calendar";
+
+export { Calendar };
