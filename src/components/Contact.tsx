@@ -1,8 +1,11 @@
 "use client";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
+import { useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,21 +24,23 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useContactForm } from "@/context/ContactFormContext";
 
 const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Valid email is required"),
   package: z.string().min(1, "Package selection is required"),
   questions: z.string().optional(),
-  // honeypot field must be empty:
-  honey: z.string().max(0).optional(),
+  honey: z.string().max(0).optional(), // honeypot field
 });
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
 export default function ContactForm() {
+  const { selectedPackage } = useContactForm();
   const { toast } = useToast();
 
   const form = useForm<ContactFormData>({
@@ -43,22 +48,26 @@ export default function ContactForm() {
     defaultValues: {
       name: "",
       email: "",
-      package: "",
+      package: selectedPackage || "",
       questions: "",
       honey: "",
     },
   });
 
+  // Update the package field whenever context changes
+  useEffect(() => {
+    if (selectedPackage) form.setValue("package", selectedPackage);
+  }, [selectedPackage, form]);
+
   const contactMutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
-      const response = await apiRequest("POST", "/api/contact", data);
-      return response.json();
+      const res = await apiRequest("POST", "/api/contact", data);
+      return res.json();
     },
     onSuccess: () => {
       toast({
         title: "Message Sent!",
-        description:
-          "Thank you for your message! I will get back to you within 2 business days.",
+        description: "Thank you for your message! I will get back to you within 2 business days.",
       });
       form.reset();
     },
@@ -66,9 +75,7 @@ export default function ContactForm() {
       toast({
         title: "Error",
         description:
-          error instanceof Error
-            ? error.message
-            : "There was an error sending your message. Please try again.",
+          error instanceof Error ? error.message : "There was an error sending your message.",
         variant: "destructive",
       });
     },
@@ -84,31 +91,22 @@ export default function ContactForm() {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="Rajdhani text-3xl md:text-4xl font-semibold text-neutral-800 mb-4">
-              Let&apos;s Work Together!
+              Let's Work Together!
             </h2>
-            <h3 className="text-xl font-medium text-neutral-800 mb-6">
-              Get in Touch
-            </h3>
+            <h3 className="text-xl font-medium text-neutral-800 mb-6">Get in Touch</h3>
             <p className="text-neutral-600 max-w-2xl mx-auto">
-              If you don&apos;t hear from me within 2 business days after
-              submitting your inquiry, feel free to contact me directly at:
+              If you don't hear from me within 2 business days after submitting your inquiry, feel free to contact me directly at:
             </p>
             <div className="mt-4 space-y-2">
               <p className="text-neutral-600">
                 <span className="font-medium">Email:</span>{" "}
-                <a
-                  href="mailto:skayes44@gmail.com"
-                  className="text-neutral-800 hover:underline"
-                >
+                <a href="mailto:skayes44@gmail.com" className="text-neutral-800 hover:underline">
                   skayes44@gmail.com
                 </a>
               </p>
               <p className="text-neutral-600">
                 <span className="font-medium">Phone:</span>{" "}
-                <a
-                  href="tel:5202223943"
-                  className="text-neutral-800 hover:underline"
-                >
+                <a href="tel:5202223943" className="text-neutral-800 hover:underline">
                   (520) 222-3943
                 </a>
               </p>
@@ -127,11 +125,7 @@ export default function ContactForm() {
                         Your Name <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors"
-                          data-testid="input-name"
-                        />
+                        <Input {...field} className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -147,12 +141,7 @@ export default function ContactForm() {
                         Your Email address <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          type="email"
-                          className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors"
-                          data-testid="input-email"
-                        />
+                        <Input {...field} type="email" className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -168,39 +157,24 @@ export default function ContactForm() {
                     <FormLabel className="text-black">
                       Package/Service Choice <span className="text-red-500">*</span>
                     </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger
-                          className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors"
-                          data-testid="select-package"
-                        >
+                        <SelectTrigger className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors">
                           <SelectValue placeholder="Select option" />
                         </SelectTrigger>
                       </FormControl>
-
                       <SelectContent className="bg-white border border-neutral-300 rounded-sm shadow-lg z-50 mt-1">
-                        <SelectItem
-                          value="standard"
-                          className="px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer"
-                        >
-                          Standard Package
-                        </SelectItem>
-                        <SelectItem
-                          value="video"
-                          className="px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer"
-                        >
-                          Video Package
-                        </SelectItem>
-                        <SelectItem
-                          value="alacarte"
-                          className="px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer"
-                        >
-                          A la carte
-                        </SelectItem>
-                      </SelectContent>
+  {["standard", "video", "alacarte"].map((pkg) => (
+    <SelectItem
+      key={pkg}
+      value={pkg}
+      className={`px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer flex items-center
+        ${form.getValues("package") === pkg ? "font-semibold bg-neutral-50" : ""}`}
+    ><span className="ml-3">
+      {pkg === "standard" ? "Standard Package" : pkg === "video" ? "Video Package" : "A la carte"} </span>
+    </SelectItem>
+  ))}
+</SelectContent>
                     </Select>
                     <p className="text-sm text-neutral-500 mt-1">
                       *If A la carte please specify in the questions box.
@@ -222,7 +196,6 @@ export default function ContactForm() {
                         rows={5}
                         placeholder="Tell me about your property, specific requirements, timeline, or any questions you have..."
                         className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors resize-vertical"
-                        data-testid="textarea-questions"
                       />
                     </FormControl>
                     <FormMessage />
@@ -238,13 +211,7 @@ export default function ContactForm() {
                   <FormItem className="hidden" aria-hidden="true" tabIndex={-1}>
                     <FormLabel>Leave this field empty</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        tabIndex={-1}
-                        autoComplete="off"
-                        spellCheck={false}
-                        className="opacity-0 h-0 w-0 pointer-events-none absolute"
-                      />
+                      <Input {...field} tabIndex={-1} autoComplete="off" spellCheck={false} className="opacity-0 h-0 w-0 pointer-events-none absolute" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -252,12 +219,7 @@ export default function ContactForm() {
               />
 
               <div>
-                <Button
-                  type="submit"
-                  disabled={contactMutation.isPending}
-                  className="w-full px-8 py-4 bg-neutral-800 text-white font-medium rounded-sm hover:bg-neutral-700 transition-colors focus:ring-2 focus:ring-neutral-800 focus:ring-offset-2 outline-none"
-                  data-testid="button-send-message"
-                >
+                <Button type="submit" disabled={contactMutation.isPending} className="w-full px-8 py-4 bg-neutral-800 text-white font-medium rounded-sm hover:bg-neutral-700 transition-colors focus:ring-2 focus:ring-neutral-800 focus:ring-offset-2 outline-none">
                   {contactMutation.isPending ? "Sending..." : "Send Message"}
                 </Button>
               </div>

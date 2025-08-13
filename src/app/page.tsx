@@ -6,6 +6,7 @@ import LightboxModal from "@/components/lightbox-modal";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import { ContactFormProvider } from "@/context/ContactFormContext";
 
 export default function Home() {
   return (
@@ -13,12 +14,11 @@ export default function Home() {
       <Navigation />
       <Hero />
       <Portfolio />
+      <ContactFormProvider>
       <Services />
       <Contact />
+      </ContactFormProvider>
       <Footer />
-      
-      
-
       <LightboxModal />
     </div>
   );
