@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     // Send email via Resend
     await resend.emails.send({
       from: 'Real Estate Inquiries <you@yourdomain.com>',
-      to: 'your@email.com', // Change to your receiving email
+      to: 'nswalker44@email.com', // Change to your receiving email
       subject: `New inquiry from ${name}`,
       html: `
         <h2>New Contact Form Submission</h2>

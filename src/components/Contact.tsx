@@ -1,6 +1,4 @@
-
-"use client"
-import { useState } from "react";
+"use client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -8,8 +6,21 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -46,14 +57,18 @@ export default function ContactForm() {
     onSuccess: () => {
       toast({
         title: "Message Sent!",
-        description: "Thank you for your message! I will get back to you within 2 business days.",
+        description:
+          "Thank you for your message! I will get back to you within 2 business days.",
       });
       form.reset();
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         title: "Error",
-        description: "There was an error sending your message. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "There was an error sending your message. Please try again.",
         variant: "destructive",
       });
     },
@@ -69,22 +84,31 @@ export default function ContactForm() {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-serif text-3xl md:text-4xl font-semibold text-neutral-800 mb-4">
-              Let's Work Together!
+              Let&apos;s Work Together!
             </h2>
-            <h3 className="text-xl font-medium text-neutral-800 mb-6">Get in Touch</h3>
+            <h3 className="text-xl font-medium text-neutral-800 mb-6">
+              Get in Touch
+            </h3>
             <p className="text-neutral-600 max-w-2xl mx-auto">
-              If you don't hear from me within 2 business days after submitting your inquiry, feel free to contact me directly at:
+              If you don&apos;t hear from me within 2 business days after
+              submitting your inquiry, feel free to contact me directly at:
             </p>
             <div className="mt-4 space-y-2">
               <p className="text-neutral-600">
                 <span className="font-medium">Email:</span>{" "}
-                <a href="mailto:skayes44@gmail.com" className="text-neutral-800 hover:underline">
+                <a
+                  href="mailto:skayes44@gmail.com"
+                  className="text-neutral-800 hover:underline"
+                >
                   skayes44@gmail.com
                 </a>
               </p>
               <p className="text-neutral-600">
                 <span className="font-medium">Phone:</span>{" "}
-                <a href="tel:5202223943" className="text-neutral-800 hover:underline">
+                <a
+                  href="tel:5202223943"
+                  className="text-neutral-800 hover:underline"
+                >
                   (520) 222-3943
                 </a>
               </p>
@@ -140,55 +164,49 @@ export default function ContactForm() {
                 control={form.control}
                 name="package"
                 render={({ field }) => (
-                  <FormField
-                  control={form.control}
-                  name="package"
-                  render={({ field }) => (
-                    <FormItem className="relative">
-                      <FormLabel className="text-black">
-                        Package/Service Choice <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger
-                            className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors"
-                            data-testid="select-package"
-                          >
-                            <SelectValue placeholder="Select option" />
-                          </SelectTrigger>
-                        </FormControl>
-                
-                        {/* Updated content with styles */}
-                        <SelectContent 
-                          className="bg-white border border-neutral-300 rounded-sm shadow-lg z-50 mt-1"
+                  <FormItem className="relative">
+                    <FormLabel className="text-black">
+                      Package/Service Choice <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger
+                          className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors"
+                          data-testid="select-package"
                         >
-                          <SelectItem 
-                            value="standard" 
-                            className="px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer"
-                          >
-                            Standard Package
-                          </SelectItem>
-                          <SelectItem 
-                            value="video" 
-                            className="px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer"
-                          >
-                            Video Package
-                          </SelectItem>
-                          <SelectItem 
-                            value="alacarte" 
-                            className="px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer"
-                          >
-                            A la carte
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-sm text-neutral-500 mt-1">
-                        *If A la carte please specify in the questions box.
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                          <SelectValue placeholder="Select option" />
+                        </SelectTrigger>
+                      </FormControl>
+
+                      <SelectContent className="bg-white border border-neutral-300 rounded-sm shadow-lg z-50 mt-1">
+                        <SelectItem
+                          value="standard"
+                          className="px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer"
+                        >
+                          Standard Package
+                        </SelectItem>
+                        <SelectItem
+                          value="video"
+                          className="px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer"
+                        >
+                          Video Package
+                        </SelectItem>
+                        <SelectItem
+                          value="alacarte"
+                          className="px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer"
+                        >
+                          A la carte
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-sm text-neutral-500 mt-1">
+                      *If A la carte please specify in the questions box.
+                    </p>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
 
