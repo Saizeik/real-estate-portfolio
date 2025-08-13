@@ -26,12 +26,12 @@ body {
   font-family: 'cursive', sans-serif;
 }
 
-/* Optional: set headings to Orbitron by default */
+
 h1, h2, h3, h4, h5, h6 {
-  font-family: Playfair Display, sans-serif;
+  font-family: 'Playfair Display', sans-serif;
 }
 
-/* Optional: set buttons to Rajdhani */
+
 button {
   font-family: 'Exo 2', sans-serif;
 }

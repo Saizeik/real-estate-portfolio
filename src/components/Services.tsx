@@ -92,7 +92,7 @@ export default function PricingPackages() {
                 </li>
                 <li className="flex items-start text-neutral-600">
                   <Check className="h-5 w-5 text-green-500 mr-3 mt-1" />
-                  <span>Options include Realtor Led Walk Through, Instagram or Facebook Reels, and TikToks</span>
+                  <span>Options include Realtor Led Walk-through, Aerial captures, Instagram or Facebook Reels, and TikToks</span>
                 </li>
               </ul>
               
