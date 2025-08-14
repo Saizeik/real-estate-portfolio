@@ -67,22 +67,20 @@ export default function ContactForm() {
     },
   });
 
-  const scrollToContact = () => {
-    const element = document.getElementById("contact");
-    if (element) {
-      const offsetTop = element.offsetTop - 64;
-      window.scrollTo({ top: offsetTop, behavior: "smooth" });
-    }
-  };
-
   const onSubmit = (data: ContactFormData) => {
     contactMutation.mutate(data);
   };
 
   if (!mounted) return null;
 
+  // Shared input classes
+  const sharedInputClasses =
+  "w-full px-3 sm:px-4 py-3 rounded-md outline-none bg-black text-white placeholder-gray-400 border border-gray-600 shadow-inner shadow-black/25 focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50 transition-all duration-300";
   return (
-    <section id="contact" className="py-12 sm:py-16 bg-gradient-to-b from-neutral-50 to-white">
+    <section
+      id="contact"
+      className="py-12 sm:py-16 bg-gradient-to-b from-neutral-50 to-white"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto bg-white p-8 sm:p-12 rounded-xl shadow-2xl border border-neutral-100">
           {/* Header */}
@@ -90,7 +88,7 @@ export default function ContactForm() {
             <h2 className="Rajdhani text-2xl sm:text-3xl md:text-4xl font-semibold text-neutral-800">
               Let's Work Together!
             </h2>
-            <h3 className="text-lg sm:text-xl font-medium text-neutral-800">
+            <h3 className="text-lg sm:text-xl font-semibold text-neutral-800">
               Get in Touch
             </h3>
             <p className="text-neutral-600 font-semibold max-w-2xl mx-auto text-sm sm:text-base">
@@ -98,12 +96,11 @@ export default function ContactForm() {
               your inquiry, feel free to contact me directly at:
             </p>
             <div className="mt-3 space-y-1 sm:space-y-2 text-sm sm:text-base">
-              
               <p className="text-neutral-600">
-                <span className="font-medium">Phone:</span>{" "}
+                <span className="font-semibold">Phone:</span>{" "}
                 <a
                   href="tel:5202223943"
-                  className="text-indigo-600 hover:underline"
+                  className="text-indigo-600 font-bold hover:underline"
                 >
                   (520) 222-3943
                 </a>
@@ -122,16 +119,17 @@ export default function ContactForm() {
                     control={form.control}
                     name={fieldName as "name" | "email"}
                     render={({ field }) => (
-                      <FormItem className="animate-fadeInUp transition-transform duration-300 hover:scale-[1.01]">
+                      <FormItem className="animate-fadeInUp">
                         <FormControl>
                           <Input
                             {...field}
-                            
                             type={fieldName === "email" ? "email" : "text"}
                             placeholder={
-                              fieldName === "name" ? "Your Name*" : "Your Email*"
+                              fieldName === "name"
+                                ? "Your Name*"
+                                : "Your Email*"
                             }
-                            className="w-full px-3 sm:px-4 py-3 border border-neutral-300 rounded-md outline-none transition-all duration-300 hover:scale-[1.01] focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-70 focus:border-transparent"
+                            className={sharedInputClasses}
                           />
                         </FormControl>
                         <FormMessage />
@@ -146,33 +144,36 @@ export default function ContactForm() {
                 control={form.control}
                 name="package"
                 render={({ field }) => (
-                  <FormItem className="animate-fadeInUp transition-transform duration-300 hover:scale-[1.01]">
+                  <FormItem className="animate-fadeInUp">
                     <FormControl>
                       <Select onValueChange={field.onChange} value={field.value}>
-                        <SelectTrigger className="w-full px-3 sm:px-4 py-3 border border-neutral-300 rounded-md outline-none transition-all duration-300 hover:scale-[1.01] focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-70 focus:border-transparent">
+                        <SelectTrigger className={sharedInputClasses}>
                           <SelectValue placeholder="Select Package*" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-neutral-300 rounded-md shadow-lg z-50 mt-1 text-sm sm:text-base">
+                        <SelectContent className="bg-black text-white border border-gray-600 rounded-md shadow-inner shadow-black/25 z-50 mt-1 text-sm sm:text-base max-h-60 overflow-y-autobg-black text-white border border-gray-600 rounded-md shadow-inner shadow-black/25 z-50 mt-1 text-sm sm:text-base max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black  ">
                           {["standard", "video", "alacarte"].map((pkg) => (
                             <SelectItem
                               key={pkg}
                               value={pkg}
-                              className={`px-3 sm:px-4 py-2 hover:bg-indigo-50 text-black cursor-pointer flex items-center transition-transform duration-200 hover:scale-[1.02] ${
-                                form.getValues("package") === pkg
-                                  ? "font-semibold bg-neutral-50"
-                                  : ""
+                              className={`px-3 sm:px-4 py-2 hover:bg-gray-800 text-white cursor-pointer flex items-center transition-transform duration-200 hover:scale-[1.02] ${
+                                form.getValues("package") === pkg ? "font-semibold bg-gray-900" : ""
                               }`}
-                            >
-                              <span className="ml-2">
-                                {pkg === "standard"
-                                  ? "Standard Package"
-                                  : pkg === "video"
-                                  ? "Video Package"
-                                  : "A la carte"}
-                              </span>
+                            ><span className="ml-4">
+                              {pkg === "standard"
+                                ? "Standard Package"
+                                : pkg === "video"
+                                ? "Video Package"
+                                : "A la carte"}
+                                  </span>
                             </SelectItem>
                           ))}
                         </SelectContent>
+                        <style jsx>{`
+  /* Scrollbar hover effect */
+  .scrollbar-thumb-gray-700:hover {
+    background-color: #9ca3af; /* lighter gray on hover */
+  }
+`}</style>
                       </Select>
                     </FormControl>
                     <p className="text-xs sm:text-sm text-neutral-500 mt-1">
@@ -188,13 +189,13 @@ export default function ContactForm() {
                 control={form.control}
                 name="questions"
                 render={({ field }) => (
-                  <FormItem className="animate-fadeInUp transition-transform duration-300 hover:scale-[1.01]">
+                  <FormItem className="animate-fadeInUp">
                     <FormControl>
                       <Textarea
                         {...field}
                         rows={5}
                         placeholder="Questions or special requests"
-                        className="w-full px-3 sm:px-4 py-3 border border-neutral-300 rounded-md outline-none transition-all duration-300 resize-vertical hover:scale-[1.01] focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-70 focus:border-transparent"
+                        className={sharedInputClasses + " resize-vertical"}
                       />
                     </FormControl>
                     <FormMessage />
@@ -232,10 +233,6 @@ export default function ContactForm() {
                   {contactMutation.status === "pending"
                     ? "Sending..."
                     : "Send Message"}
-                  {/* Tiny sparkle effect */}
-                  <span className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                    <span className="block w-1 h-1 bg-white rounded-full opacity-0 animate-sparkle absolute"></span>
-                  </span>
                 </Button>
               </div>
             </form>

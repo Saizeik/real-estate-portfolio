@@ -103,7 +103,7 @@ export default function PricingPackages() {
               <Button
                 onClick={() => handleChoosePackage("alacarte")}
                 variant="outline"
-                className="w-full bg-gradient-to-r from-indigo-100 to-purple-100 hover:from-indigo-200 hover:to-purple-200 text-neutral-800 font-medium rounded-lg shadow-sm transition-all duration-300"
+                className="w-full bg-gradient-to-r from-indigo-100 to-purple-100 hover:from-indigo-200 hover:to-purple-200 text-neutral-800 font-bold rounded-lg shadow-sm transition-all duration-300"
               >
                 Contact for Quote
               </Button>
