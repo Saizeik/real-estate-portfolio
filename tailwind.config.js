@@ -5,6 +5,14 @@ module.exports = {
       "./pages/**/*.{js,ts,jsx,tsx}",     // only if using pages/
       "./components/**/*.{js,ts,jsx,tsx}",// your components
     ],
+    safelist: [
+      "md:grid-cols-2",
+      "lg:grid-cols-3",
+      "overflow-x-hidden",
+      "overflow-hidden",
+      "w-full",
+      "h-auto",
+    ],
     theme: {
       extend: {
         fontFamily: {
