@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 interface PortfolioItem {
   id: string;
@@ -84,7 +85,6 @@ const portfolioItems: PortfolioItem[] = [
   },
 ];
 
-// create a typed filter list to avoid `any`
 const FILTERS = ["all", "interior", "exterior"] as const;
 type Filter = (typeof FILTERS)[number];
 
@@ -93,11 +93,19 @@ export default function PortfolioGallery() {
   const [lightboxImage, setLightboxImage] = useState<PortfolioItem | null>(
     null
   );
+  const [visibleItems, setVisibleItems] = useState<PortfolioItem[]>([]);
 
   const filteredItems =
     activeFilter === "all"
       ? portfolioItems
       : portfolioItems.filter((item) => item.category === activeFilter);
+
+  // Staggered animation for smooth appearance
+  useEffect(() => {
+    setVisibleItems([]);
+    const timer = setTimeout(() => setVisibleItems(filteredItems), 50);
+    return () => clearTimeout(timer);
+  }, [activeFilter]);
 
   const openLightbox = (item: PortfolioItem) => {
     setLightboxImage(item);
@@ -122,19 +130,18 @@ export default function PortfolioGallery() {
           </p>
         </div>
 
-        {/* Portfolio Filters */}
+        {/* Filters */}
         <div className="flex justify-center mb-12">
           <div className="flex flex-wrap gap-4">
             {FILTERS.map((filter) => (
               <Button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`px-6 py-2 rounded-sm font-medium ${
+                className={`px-6 py-2 rounded-sm font-medium transition-colors ${
                   activeFilter === filter
                     ? "bg-neutral-800 text-white"
                     : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
                 }`}
-                data-testid={`filter-${filter}`}
               >
                 {filter.charAt(0).toUpperCase() + filter.slice(1)}
               </Button>
@@ -142,41 +149,48 @@ export default function PortfolioGallery() {
           </div>
         </div>
 
-        {/* Gallery Grid */}
-        <div className="w-full">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item) => (
-              <div
-                key={item.id}
-                className="w-full cursor-pointer group"
-                onClick={() => openLightbox(item)}
-                data-testid={`portfolio-item-${item.id}`}
+        {/* Gallery */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {visibleItems.map((item, idx) => (
+            <motion.div
+              key={item.id}
+              className="relative cursor-pointer overflow-hidden rounded-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: idx * 0.05 }}
+              onClick={() => openLightbox(item)}
+            >
+              <motion.img
+                src={item.src}
+                alt={item.alt}
+                className="w-full h-64 object-cover rounded-lg shadow-md transition-shadow duration-500"
+                whileHover={{
+                  scale: 1.05,
+                  y: -2,
+                  boxShadow: "0px 10px 20px rgba(0,0,0,0.2)",
+                }}
+              />
+              <motion.span
+                className="absolute bottom-2 left-2 bg-white/70 backdrop-blur-sm text-black text-sm px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity"
+                whileHover={{ y: -2 }}
               >
-                {/* Keeping <img> to avoid Next.js remote image config requirements.
-                    This only triggers a warning, not a build error. */}
-                <img
-                  src={item.src}
-                  alt={item.alt}
-                  className="w-full h-64 object-cover rounded-lg shadow-md group-hover:shadow-xl transition-shadow duration-300"
-                />
-              </div>
-            ))}
-          </div>
+                {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+              </motion.span>
+            </motion.div>
+          ))}
         </div>
       </div>
 
-      {/* Lightbox Overlay */}
+      {/* Lightbox */}
       {lightboxImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
           onClick={closeLightbox}
-          data-testid="lightbox-overlay"
         >
           <div className="relative max-w-4xl max-h-full m-4">
             <button
               onClick={closeLightbox}
               className="absolute -top-12 right-0 text-white text-2xl hover:text-gray-300"
-              data-testid="button-close-lightbox"
             >
               ✕
             </button>
@@ -185,12 +199,9 @@ export default function PortfolioGallery() {
               alt={lightboxImage.alt}
               className="max-w-full max-h-full object-contain"
               onClick={(e) => e.stopPropagation()}
-              data-testid="lightbox-image"
             />
             <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4 text-center">
-              <p className="text-sm" data-testid="lightbox-caption">
-                {lightboxImage.alt}
-              </p>
+              <p className="text-sm">{lightboxImage.alt}</p>
             </div>
           </div>
         </div>
