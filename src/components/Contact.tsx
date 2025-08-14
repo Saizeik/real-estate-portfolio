@@ -219,7 +219,7 @@ export default function ContactForm() {
               />
 
               <div>
-                <Button type="submit" disabled={contactMutation.isPending} className="w-full px-8 py-4 bg-neutral-800 text-white font-medium rounded-sm hover:bg-neutral-700 transition-colors focus:ring-2 focus:ring-neutral-800 focus:ring-offset-2 outline-none">
+                <Button type="submit" disabled={contactMutation.isPending} className="w-full px-8 py-4 bg-neutral-800 text-white font-medium rounded-sm hover:bg-neutral-700 transition-colors focus:ring-2 focus:ring-neutral-800 focus:ring-offset-2 outline-none cursor-pointer">
                   {contactMutation.isPending ? "Sending..." : "Send Message"}
                 </Button>
               </div>

@@ -47,7 +47,7 @@ export default function PricingPackages() {
                 <li className="flex items-center"><Check className="text-green-500 mr-2" />$5 for each additional photo</li>
                 <li className="flex items-center"><Check className="text-green-500 mr-2" />Floor Plan included</li>
               </ul>
-              <Button onClick={() => handleChoosePackage("standard")} className="w-full bg-neutral-800 text-white">
+              <Button onClick={() => handleChoosePackage("standard")} className="w-full bg-neutral-800 text-white hover:bg-indigo-200 hover:text-neutral-400 cursor-pointer">
                 Choose Standard
               </Button>
             </CardContent>
@@ -70,7 +70,7 @@ export default function PricingPackages() {
                 <li className="flex items-center"><Check className="text-green-500 mr-2" />1-2 Minute Cinematic Walk Through</li>
                 <li className="flex items-start"><Check className="text-green-500 mr-2 mt-1" />Options include Realtor Led Walk-through, Aerial captures, Instagram/Facebook Reels, and TikToks</li>
               </ul>
-              <Button onClick={() => handleChoosePackage("video")} className="w-full bg-neutral-800 text-white">
+              <Button onClick={() => handleChoosePackage("video")} className="w-full bg-neutral-800 text-white hover:bg-indigo-200 hover:text-neutral-400 cursor-pointer">
                 Choose Video
               </Button>
             </CardContent>
@@ -88,9 +88,9 @@ export default function PricingPackages() {
                 <li className="flex items-center"><Check className="text-green-500 mr-2" />Cinematic Walk Through $50</li>
                 <li className="flex items-center"><Check className="text-green-500 mr-2" />Floor Plan $40</li>
               </ul>
-              <Button onClick={() => handleChoosePackage("alacarte")} variant="outline" className="w-full bg-neutral-100 text-neutral-800">
+              <Button onClick={() => handleChoosePackage("alacarte")} variant="outline" className="w-full bg-neutral-100 text-neutral-800 hover:bg-indigo-200 hover:text-neutral-400 cursor-pointer">
                 Contact for Quote
-              </Button>
+              </Button> 
             </CardContent>
           </Card>
         </div>
