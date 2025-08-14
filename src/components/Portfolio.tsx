@@ -185,7 +185,7 @@ export default function PortfolioGallery() {
     <AnimatePresence>
   {lightboxImage && (
     <motion.div
-      className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -193,31 +193,53 @@ export default function PortfolioGallery() {
       onClick={closeLightbox}
     >
       <motion.div
-        className="relative max-w-4xl max-h-full m-4"
+        className="relative w-full max-w-[90%] max-h-[90%] rounded-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={closeLightbox}
-          className="absolute -top-12 right-0 text-white text-2xl hover:text-gray-300"
-        >
-          ✕
-        </button>
-        <motion.img
-          src={lightboxImage.src}
-          alt={lightboxImage.alt}
-          className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0.8 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        />
-        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4 text-center rounded-b-lg">
-          <p className="text-sm">{lightboxImage.alt}</p>
+        {/* Scrollable content wrapper for small screens */}
+        <div className="w-full h-full flex flex-col items-center justify-center sm:max-h-[90vh] overflow-auto">
+          {/* Close Button */}
+          <button
+            onClick={closeLightbox}
+            className="absolute top-2 right-2 text-white text-2xl sm:text-3xl md:text-4xl font-bold hover:text-gray-300 z-50"
+          >
+            ✕
+          </button>
+
+          {/* Image */}
+          <motion.img
+            src={lightboxImage.src}
+            alt={lightboxImage.alt}
+            className="w-full h-auto object-contain rounded-lg shadow-lg"
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0.8 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
+
+          {/* Caption */}
+          <div className="mt-2 bg-black bg-opacity-50 text-white text-center px-2 py-1 rounded-b-lg text-sm sm:text-base">
+            {lightboxImage.alt}
+          </div>
         </div>
       </motion.div>
     </motion.div>
   )}
 </AnimatePresence>
+
+{/* Body scroll lock */}
+{lightboxImage && typeof window !== "undefined" && (
+  <script
+    dangerouslySetInnerHTML={{
+      __html: `
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('beforeunload', () => {
+          document.body.style.overflow = 'auto';
+        });
+      `,
+    }}
+  />
+)}
     </section>
   );
 }

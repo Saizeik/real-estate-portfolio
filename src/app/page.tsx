@@ -18,14 +18,16 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className=" w-full mx-auto px-4 sm:px-6 lg:px-8 bg-white">
+    <div className="w-full bg-white">
       <Navigation />
+      <main className="px-4 sm:px-6 lg:px-8">
       <Hero />
      <Portfolio />
       <ContactFormProvider>
       <Services />
       <Contact />
       </ContactFormProvider>
+      </main>
       <Footer />
       <LightboxModal />
     </div>

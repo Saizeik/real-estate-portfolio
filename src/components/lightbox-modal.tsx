@@ -6,7 +6,7 @@ interface LightboxModalProps {
   onClose?: () => void;
 }
 
-export default function LightboxModal({ isOpen, onClose }: LightboxModalProps) {
+export default function LightboxModal({ isOpen, onClose,  }: LightboxModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && onClose) {
