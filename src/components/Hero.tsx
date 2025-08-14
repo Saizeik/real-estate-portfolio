@@ -13,7 +13,7 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="pt-16 min-h-screen flex items-center bg-gradient-to-br from-neutral-50 to-white relative overflow-hidden"
+      className="py-12 sm:py-16 lg:py-20 text-center bg-gradient-to-br from-neutral-50 to-white relative overflow-hidden"
     >
       {/* Floating background shapes */}
       <div className="absolute -top-32 -left-32 w-96 h-96 bg-purple-200/20 rounded-full animate-floatSlow z-0"></div>
@@ -26,7 +26,7 @@ export default function Hero() {
               <h1 className="font-playfair text-4xl md:text-5xl lg:text-6xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 animate-textGradient leading-tight">
                 Real Estate Photography
               </h1>
-              <p className="text-xl text-neutral-600 font-light">
+              <p className="mt-4 text-base sm:text-lg md:text-xl text-neutral-600 font-light">
                 Serving Seattle, WA and surrounding areas
               </p>
             </div>
@@ -37,7 +37,7 @@ export default function Hero() {
               with expert composition and editing.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 onClick={() => scrollToSection("portfolio")}
                 className="inline-flex items-center justify-center px-8 py-3 bg-black text-white font-medium rounded-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
@@ -102,7 +102,7 @@ export default function Hero() {
         .animate-floatSlow {
           animation: floatSlow 8s ease-in-out infinite;
         }
-
+ 
         @keyframes textGradient {
           0% {
             background-position: 0% 50%;

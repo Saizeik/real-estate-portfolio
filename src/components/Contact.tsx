@@ -134,6 +134,7 @@ export default function ContactForm() {
                         <FormControl>
                           <Input
                             {...field}
+                            
                             type={fieldName === "email" ? "email" : "text"}
                             placeholder={
                               fieldName === "name" ? "Your Name*" : "Your Email*"
