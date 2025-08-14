@@ -1,34 +1,40 @@
-import Image from "next/image";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import Portfolio from "@/components/Portfolio";
-import LightboxModal from "@/components/lightbox-modal";
-import Services from "@/components/Services";
+import PortfolioGallery from "@/components/Portfolio";
+import PricingPackages from "@/components/Services";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import LightboxModal from "@/components/lightbox-modal";
 import { ContactFormProvider } from "@/context/ContactFormContext";
-import type { Metadata } from "next"; // <--- import this
-
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Stepanie Kaye | Real Estate Photography",
   description: "High-quality real estate photography services",
 };
 
-
 export default function Home() {
   return (
-    <div className="w-full bg-white">
+    <div className="w-full bg-white overflow-x-hidden">
+      {/* Navigation */}
       <Navigation />
-      <main className="px-4 sm:px-6 lg:px-8">
+
+      {/* Hero Section */}
       <Hero />
-     <Portfolio />
+
+      {/* Portfolio Section */}
+      <PortfolioGallery />
+
+      {/* Services / Pricing Section */}
       <ContactFormProvider>
-      <Services />
-      <Contact />
+        <PricingPackages />
+        <Contact />
       </ContactFormProvider>
-      </main>
+
+      {/* Footer */}
       <Footer />
+
+      {/* Lightbox Modal outside main flow */}
       <LightboxModal />
     </div>
   );
