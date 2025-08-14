@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PortfolioItem {
   id: string;
@@ -124,7 +124,7 @@ export default function PortfolioGallery() {
           <h2 className="font-playfair text-3xl md:text-4xl font-semibold text-neutral-800 mb-4">
             Portfolio
           </h2>
-          <p className="text-lg text-neutral-600 font-semibold max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-600 font-semiboldmax-w-2xl mx-auto">
             Explore work showcasing beautiful homes and properties across the
             Seattle area
           </p>
@@ -181,31 +181,43 @@ export default function PortfolioGallery() {
         </div>
       </div>
 
-      {/* Lightbox */}
-      {lightboxImage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+    {/* Lightbox */}
+    <AnimatePresence>
+  {lightboxImage && (
+    <motion.div
+      className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      onClick={closeLightbox}
+    >
+      <motion.div
+        className="relative max-w-4xl max-h-full m-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
           onClick={closeLightbox}
+          className="absolute -top-12 right-0 text-white text-2xl hover:text-gray-300"
         >
-          <div className="relative max-w-4xl max-h-full m-4">
-            <button
-              onClick={closeLightbox}
-              className="absolute -top-12 right-0 text-white text-2xl hover:text-gray-300"
-            >
-              ✕
-            </button>
-            <img
-              src={lightboxImage.src}
-              alt={lightboxImage.alt}
-              className="max-w-full max-h-full object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4 text-center">
-              <p className="text-sm">{lightboxImage.alt}</p>
-            </div>
-          </div>
+          ✕
+        </button>
+        <motion.img
+          src={lightboxImage.src}
+          alt={lightboxImage.alt}
+          className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          exit={{ scale: 0.8 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4 text-center rounded-b-lg">
+          <p className="text-sm">{lightboxImage.alt}</p>
         </div>
-      )}
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
     </section>
   );
 }
