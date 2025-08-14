@@ -40,7 +40,7 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 onClick={() => scrollToSection("portfolio")}
-                className="inline-flex items-center justify-center px-8 py-3 bg-neutral-800 text-white font-medium rounded-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                className="inline-flex items-center justify-center px-8 py-3 bg-black text-white font-medium rounded-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                 data-testid="button-view-portfolio"
               >
                 View Portfolio
@@ -48,7 +48,7 @@ export default function Hero() {
               <Button
                 variant="outline"
                 onClick={() => scrollToSection("contact")}
-                className="inline-flex items-center justify-center px-8 py-3 border-2 border-neutral-800 text-white font-medium rounded-sm hover:bg-neutral-800 hover:text-white shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300"
+                className="inline-flex items-center justify-center px-8 py-3 bg-black text-white font-medium rounded-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                 data-testid="button-get-quote"
               >
                 Get Quote
