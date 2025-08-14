@@ -26,15 +26,15 @@ import {
 } from "@/components/ui/form";
 
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { useContactForm } from "@/context/ContactFormContext";
+import { apiRequest } from "@/lib/queryClient";
 
 const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Valid email is required"),
   package: z.string().min(1, "Package selection is required"),
   questions: z.string().optional(),
-  honey: z.string().max(0).optional(), // honeypot field
+  honey: z.string().max(0).optional(),
 });
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
@@ -54,7 +54,6 @@ export default function ContactForm() {
     },
   });
 
-  // Update the package field whenever context changes
   useEffect(() => {
     if (selectedPackage) form.setValue("package", selectedPackage);
   }, [selectedPackage, form]);
@@ -62,171 +61,127 @@ export default function ContactForm() {
   const contactMutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
       const res = await apiRequest("POST", "/api/contact", data);
-      return res.json();
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to send message");
+      return json;
     },
     onSuccess: () => {
       toast({
         title: "Message Sent!",
-        description: "Thank you for your message! I will get back to you within 2 business days.",
+        description:
+          "Thank you for your message! I will get back to you within 2 business days.",
+        variant: "default",
+        duration: 5000,
       });
       form.reset();
     },
-    onError: (error: unknown) => {
+    onError: (error: any) => {
+      console.error("Mutation error:", error);
       toast({
         title: "Error",
-        description:
-          error instanceof Error ? error.message : "There was an error sending your message.",
+        description: error instanceof Error ? error.message : "Unknown error",
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = (data: ContactFormData) => {
-    contactMutation.mutate(data);
-  };
+  const onSubmit = (data: ContactFormData) => contactMutation.mutate(data);
 
   return (
-    <section id="contact" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="Rajdhani text-3xl md:text-4xl font-semibold text-neutral-800 mb-4">
-              Let's Work Together!
-            </h2>
-            <h3 className="text-xl font-medium text-neutral-800 mb-6">Get in Touch</h3>
-            <p className="text-neutral-600 max-w-2xl mx-auto">
-              If you don't hear from me within 2 business days after submitting your inquiry, feel free to contact me directly at:
-            </p>
-            <div className="mt-4 space-y-2">
-              <p className="text-neutral-600">
-                <span className="font-medium">Email:</span>{" "}
-                <a href="mailto:skayes44@gmail.com" className="text-neutral-800 hover:underline">
-                  skayes44@gmail.com
-                </a>
-              </p>
-              <p className="text-neutral-600">
-                <span className="font-medium">Phone:</span>{" "}
-                <a href="tel:5202223943" className="text-neutral-800 hover:underline">
-                  (520) 222-3943
-                </a>
-              </p>
-            </div>
-          </div>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-black">
-                        Your Name <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-black">
-                        Your Email address <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} type="email" className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="package"
-                render={({ field }) => (
-                  <FormItem className="relative">
-                    <FormLabel className="text-black">
-                      Package/Service Choice <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors">
-                          <SelectValue placeholder="Select option" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="bg-white border border-neutral-300 rounded-sm shadow-lg z-50 mt-1">
-  {["standard", "video", "alacarte"].map((pkg) => (
-    <SelectItem
-      key={pkg}
-      value={pkg}
-      className={`px-4 py-2 hover:bg-neutral-100 text-black cursor-pointer flex items-center
-        ${form.getValues("package") === pkg ? "font-semibold bg-neutral-50" : ""}`}
-    ><span className="ml-3">
-      {pkg === "standard" ? "Standard Package" : pkg === "video" ? "Video Package" : "A la carte"} </span>
-    </SelectItem>
-  ))}
-</SelectContent>
-                    </Select>
-                    <p className="text-sm text-neutral-500 mt-1">
-                      *If A la carte please specify in the questions box.
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="questions"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-black">Questions</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        rows={5}
-                        placeholder="Tell me about your property, specific requirements, timeline, or any questions you have..."
-                        className="w-full px-4 py-3 border border-neutral-300 rounded-sm focus:ring-2 focus:ring-neutral-800 focus:border-transparent outline-none transition-colors resize-vertical"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Honeypot field: hidden from users */}
-              <FormField
-                control={form.control}
-                name="honey"
-                render={({ field }) => (
-                  <FormItem className="hidden" aria-hidden="true" tabIndex={-1}>
-                    <FormLabel>Leave this field empty</FormLabel>
-                    <FormControl>
-                      <Input {...field} tabIndex={-1} autoComplete="off" spellCheck={false} className="opacity-0 h-0 w-0 pointer-events-none absolute" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div>
-                <Button type="submit" disabled={contactMutation.isPending} className="w-full px-8 py-4 bg-neutral-800 text-white font-medium rounded-sm hover:bg-neutral-700 transition-colors focus:ring-2 focus:ring-neutral-800 focus:ring-offset-2 outline-none cursor-pointer">
-                  {contactMutation.isPending ? "Sending..." : "Send Message"}
-                </Button>
-              </div>
-            </form>
-          </Form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Name & Email */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Your Name *</FormLabel>
+                <FormControl>
+                  <Input {...field} className="w-full px-4 py-3" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Your Email *</FormLabel>
+                <FormControl>
+                  <Input {...field} type="email" className="w-full px-4 py-3" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-      </div>
-    </section>
+
+        {/* Package */}
+        <FormField
+          control={form.control}
+          name="package"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Package/Service Choice *</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full px-4 py-3">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {["standard", "video", "alacarte"].map((pkg) => (
+                    <SelectItem key={pkg} value={pkg}>
+                      {pkg === "standard"
+                        ? "Standard Package"
+                        : pkg === "video"
+                        ? "Video Package"
+                        : "A la carte"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Questions */}
+        <FormField
+          control={form.control}
+          name="questions"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Questions</FormLabel>
+              <FormControl>
+                <Textarea {...field} rows={5} placeholder="Your message..." />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Honeypot */}
+        <FormField
+          control={form.control}
+          name="honey"
+          render={({ field }) => (
+            <FormItem className="hidden">
+              <FormControl>
+                <Input {...field} autoComplete="off" />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" disabled={contactMutation.isPending} className="w-full">
+          {contactMutation.isPending ? "Sending..." : "Send Message"}
+        </Button>
+      </form>
+    </Form>
   );
 }
