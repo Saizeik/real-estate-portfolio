@@ -31,7 +31,7 @@ export default function Hero() {
               </p>
             </div>
 
-            <p className="text-lg text-neutral-600 leading-relaxed max-w-md">
+            <p className="font-cursive text-lg text-base sm:text-lg md:text-xl font-semibold text-neutral-600 leading-relaxed">
               Professional real estate photography that showcases properties in
               their best light. Capturing the essence and beauty of every home
               with expert composition and editing.

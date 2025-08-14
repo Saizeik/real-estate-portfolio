@@ -124,7 +124,7 @@ export default function PortfolioGallery() {
           <h2 className="font-playfair text-3xl md:text-4xl font-semibold text-neutral-800 mb-4">
             Portfolio
           </h2>
-          <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-600 font-semibold max-w-2xl mx-auto">
             Explore work showcasing beautiful homes and properties across the
             Seattle area
           </p>

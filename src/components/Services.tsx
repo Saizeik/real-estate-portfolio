@@ -33,7 +33,7 @@ export default function PricingPackages() {
           <h2 className="font-bebas text-3xl md:text-4xl font-semibold text-neutral-800 mb-4">
             Pricing & Packages
           </h2>
-          <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-600 font-semibold max-w-2xl mx-auto">
             Professional photography packages designed to meet your real estate needs
           </p>
         </div>

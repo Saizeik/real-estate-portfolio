@@ -93,20 +93,12 @@ export default function ContactForm() {
             <h3 className="text-lg sm:text-xl font-medium text-neutral-800">
               Get in Touch
             </h3>
-            <p className="text-neutral-600 max-w-2xl mx-auto text-sm sm:text-base">
+            <p className="text-neutral-600 font-semibold max-w-2xl mx-auto text-sm sm:text-base">
               If you don't hear from me within 2 business days after submitting
               your inquiry, feel free to contact me directly at:
             </p>
             <div className="mt-3 space-y-1 sm:space-y-2 text-sm sm:text-base">
-              <p className="text-neutral-600">
-                <span className="font-medium">Email:</span>{" "}
-                <a
-                  href="mailto:skayes44@gmail.com"
-                  className="text-indigo-600 hover:underline"
-                >
-                  skayes44@gmail.com
-                </a>
-              </p>
+              
               <p className="text-neutral-600">
                 <span className="font-medium">Phone:</span>{" "}
                 <a
