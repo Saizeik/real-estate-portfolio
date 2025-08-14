@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 
+
 export default function Hero() {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);

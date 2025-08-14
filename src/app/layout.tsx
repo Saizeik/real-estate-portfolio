@@ -1,6 +1,10 @@
+"use client";
+import { useEffect } from "react";
 import type { Metadata } from "next";
+import { Toaster } from "sonner";
+
 import { Geist, Geist_Mono } from "next/font/google";
-import { ToastProvider, ToastViewport } from "@/components/ui/toast";
+
 import "./globals.css";
 import QueryProvider from "@/providers/QueryProvider";
 
@@ -14,20 +18,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Stepanie Kaye | Real Estate Photography",
-  description: "High-quality real estate photography services",
-};
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    document.documentElement.style.transitionProperty = "none";
+    document.documentElement.style.marginRight = "0px";
+  }, []);
   return (
     <html lang="en-US">
       <head>
-      
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link
           href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@400;700&display=swap"
           rel="stylesheet"
@@ -44,10 +45,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       ><QueryProvider>
-        <ToastProvider>
+        
+       
          {children}
-        <ToastViewport />
-        </ToastProvider>
+         <Toaster richColors position="top-center" />
         </QueryProvider>
       </body>
     </html>
