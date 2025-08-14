@@ -48,11 +48,18 @@ export default function PricingPackages() {
               </h3>
               <div className="text-4xl md:text-5xl font-bold text-indigo-600 mb-2">$125</div>
               <ul className="space-y-3 mb-8 text-neutral-600 text-left">
-                <li className="flex items-center"><Check className="text-green-500 mr-2" />Interior and Exterior Photos</li>
-                <li className="flex items-center"><Check className="text-green-500 mr-2" />Up to 20 Professionally edited Photos</li>
-                <li className="flex items-center"><Check className="text-green-500 mr-2" />$5 for each additional photo</li>
-                <li className="flex items-center"><Check className="text-green-500 mr-2" />Floor Plan included</li>
-              </ul>
+  {[
+    "Interior and Exterior Photos",
+    "Up to 20 Professionally edited Photos",
+    "$5 for each additional photo",
+    "Floor Plan included",
+  ].map((text, idx) => (
+    <li key={idx} className="flex items-start">
+      <Check className="text-green-500 mr-2 w-5 h-5 flex-shrink-0 mt-0.5" />
+      <span>{text}</span>
+    </li>
+  ))}
+</ul>
               <Button
                 onClick={() => handleChoosePackage("standard")}
                 className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-300"
@@ -75,10 +82,17 @@ export default function PricingPackages() {
               </h3>
               <div className="text-5xl font-bold text-indigo-600 mb-2">$175</div>
               <ul className="space-y-3 mb-8 text-neutral-600 text-left">
-                <li className="flex items-center"><Check className="text-green-500 mr-2" />All that comes with Standard Package</li>
-                <li className="flex items-center"><Check className="text-green-500 mr-2" />1-2 Minute Cinematic Walk Through</li>
-                <li className="flex items-start"><Check className="text-green-500 mr-2 mt-1" />Options include Realtor Led Walk-through, Aerial captures, Instagram/Facebook Reels, and TikToks</li>
-              </ul>
+  {[
+    "All that comes with Standard Package",
+    "1-2 Minute cinematic Walk-through",
+    "Options include realtor led walk-through, Aerial captures, Instagram/Facebook Reels, and TikToks",
+  ].map((text, idx) => (
+    <li key={idx} className="flex items-start">
+      <Check className="text-green-500 mr-2 w-5 h-5 flex-shrink-0 mt-0.5" />
+      <span>{text}</span>
+    </li>
+  ))}
+</ul>
               <Button
                 onClick={() => handleChoosePackage("video")}
                 className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-300"
@@ -96,10 +110,17 @@ export default function PricingPackages() {
               </h3>
               <div className="text-xl font-medium text-neutral-600 mb-2">Contact me</div>
               <ul className="space-y-3 mb-8 text-neutral-600 text-left">
-                <li className="flex items-center"><Check className="text-green-500 mr-2" />$15 per Professionally edited photo (min 5)</li>
-                <li className="flex items-center"><Check className="text-green-500 mr-2" />Cinematic Walk Through $50</li>
-                <li className="flex items-center"><Check className="text-green-500 mr-2" />Floor Plan $40</li>
-              </ul>
+  {[
+    "$15 per Professionally edited photo (min 5)",
+    "Cinematic walk-through $50",
+    "Floor Plan $40",
+  ].map((text, idx) => (
+    <li key={idx} className="flex items-start">
+      <Check className="text-green-500 mr-2 w-5 h-5 flex-shrink-0 mt-0.5" />
+      <span>{text}</span>
+    </li>
+  ))}
+</ul>
               <Button
                 onClick={() => handleChoosePackage("alacarte")}
                 variant="outline"

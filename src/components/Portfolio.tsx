@@ -80,7 +80,7 @@ const portfolioItems: PortfolioItem[] = [
   {
     id: "12",
     src: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-    alt: "Traditional brick home",
+    alt: "Commercial real estate",
     category: "exterior",
   },
 ];
