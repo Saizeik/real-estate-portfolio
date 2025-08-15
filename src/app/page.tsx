@@ -6,12 +6,9 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import LightboxModal from "@/components/lightbox-modal";
 import { ContactFormProvider } from "@/context/ContactFormContext";
-import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Stepanie Kaye | Real Estate Photography",
-  description: "High-quality real estate photography services",
-};
+
+
 
 export default function Home() {
   return (

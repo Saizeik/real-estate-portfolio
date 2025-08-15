@@ -1,57 +1,26 @@
-"use client";
-import { useEffect } from "react";
-import type { Metadata } from "next";
-import { Toaster } from "sonner";
-
+// src/app/layout.tsx
 import { Geist, Geist_Mono } from "next/font/google";
-
 import "./globals.css";
 import QueryProvider from "@/providers/QueryProvider";
+import type { Metadata } from "next";
+import ToastWrapper from "@/components/ToasterWrapper"; // client component
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-
+export const metadata: Metadata = {
+  title: "Stephanie Kaye | Real Estate Photography",
+  description: "High-quality real estate photography services",
+  viewport: "width=device-width, initial-scale=1",
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    document.documentElement.style.transitionProperty = "none";
-    document.documentElement.style.marginRight = "0px";
-  }, []);
   return (
-    <html lang="en-US">
-      <head>
-  <meta charSet="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0"/>
-  
-  <link href="/dist/styles.css" rel="stylesheet"/>
-    
-      <link
-          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
-    
-      
-        <link
-          href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;900&display=swap"
-          rel="stylesheet"
-          />
-    </head>
-      
-      
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      ><QueryProvider>
-        
-       
-         {children}
-         <Toaster richColors position="top-center" />
+    <html lang="en-US" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body>
+        <QueryProvider>
+          {children}
+          <ToastWrapper />
         </QueryProvider>
       </body>
     </html>

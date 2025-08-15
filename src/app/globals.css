@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -13,6 +15,10 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 img, video {
   max-width: 100%;
   height: auto;
@@ -23,6 +29,9 @@ html, body {
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
   background: var(--background);
   color: var(--foreground);
   font-family: 'cursive', sans-serif;
