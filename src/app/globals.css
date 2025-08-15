@@ -19,8 +19,6 @@ html, body {
 html {
   scroll-behavior: smooth;
   /* Ensure the page uses the device width */
-  width: 100%;
-  overflow-x: hidden;
 }
 
 body {

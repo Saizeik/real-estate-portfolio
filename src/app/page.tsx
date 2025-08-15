@@ -12,7 +12,7 @@ import { ContactFormProvider } from "@/context/ContactFormContext";
 
 export default function Home() {
   return (
-    <div className="w-full bg-white overflow-x-hidden">
+    <div className="w-full overflow-x-hidden">
       {/* Navigation */}
       <Navigation />
 
