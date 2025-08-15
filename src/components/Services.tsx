@@ -62,8 +62,19 @@ export default function PricingPackages() {
               </ul>
               <Button
                 onClick={() => handleChoosePackage("standard")}
-                className="mt-auto w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-95 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none shadow-lg relative overflow-hidden cursor-pointer"
-                
+                className="
+  mt-auto w-full
+  bg-gradient-to-r from-indigo-200 to-purple-200
+  hover:from-indigo-300 hover:to-purple-300
+  text-neutral-800 font-bold rounded-lg
+  shadow-sm hover:shadow-lg
+  transition-colors transition-transform duration-300
+  hover:scale-105 active:scale-98
+  focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none
+  relative overflow-hidden cursor-pointer
+  will-change-transform
+  before:absolute before:inset-0 before:bg-gradient-to-r before:from-indigo-300 before:to-purple-300 before:opacity-0 before:transition-opacity hover:before:opacity-20
+"
               >
                 Choose Standard
               </Button>
@@ -96,8 +107,19 @@ export default function PricingPackages() {
               </ul>
               <Button
                 onClick={() => handleChoosePackage("video")}
-                className="mt-auto w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-95 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none shadow-lg relative overflow-hidden cursor-pointer"
-                >
+                className="
+  mt-auto w-full
+  bg-gradient-to-r from-indigo-200 to-purple-200
+  hover:from-indigo-300 hover:to-purple-300
+  text-neutral-800 font-bold rounded-lg
+  shadow-sm hover:shadow-lg
+  transition-colors transition-transform duration-300
+  hover:scale-105 active:scale-98
+  focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none
+  relative overflow-hidden cursor-pointer
+  will-change-transform
+  before:absolute before:inset-0 before:bg-gradient-to-r before:from-indigo-300 before:to-purple-300 before:opacity-0 before:transition-opacity hover:before:opacity-20
+">
               
                 Choose Video
               </Button>
@@ -126,7 +148,19 @@ export default function PricingPackages() {
               <Button
                 onClick={() => handleChoosePackage("alacarte")}
                 variant="outline"
-                className="mt-auto w-full bg-gradient-to-r from-indigo-100 to-purple-100 hover:from-indigo-200 hover:to-purple-200 text-neutral-800 font-bold rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03] active:scale-95 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none shadow-lg relative overflow-hidden cursor-pointer"
+                className="
+  mt-auto w-full
+  bg-gradient-to-r from-indigo-200 to-purple-200
+  hover:from-indigo-300 hover:to-purple-300
+  text-neutral-800 font-bold rounded-lg
+  shadow-sm hover:shadow-lg
+  transition-colors transition-transform duration-300
+  hover:scale-105 active:scale-98
+  focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none
+  relative overflow-hidden cursor-pointer
+  will-change-transform
+  before:absolute before:inset-0 before:bg-gradient-to-r before:from-indigo-300 before:to-purple-300 before:opacity-0 before:transition-opacity hover:before:opacity-20
+"
                 
               >
                 Contact for Quote
