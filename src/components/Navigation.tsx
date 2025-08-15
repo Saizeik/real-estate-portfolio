@@ -76,7 +76,7 @@ export default function Navigation() {
                 <button
                   key={sec}
                   onClick={() => scrollToSection(sec)}
-                  className={`relative text-neutral-600 hover:text-neutral-800 transition-colors after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-purple-500 after:to-pink-500 after:transition-all hover:after:w-full ${
+                  className={`relative text-neutral-600 hover:text-neutral-800 transition-colors after:absolute after:left-0 after:bottom-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-purple-500 after:to-pink-500 after:transition-all hover:after:w-full cursor-pointer ${
                     activeSection === sec
                       ? "font-semibold text-neutral-800 after:w-full"
                       : ""
@@ -89,10 +89,10 @@ export default function Navigation() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-3 bg-purple-500 text-white rounded-full shadow-lg transform transition-transform duration-200 hover:scale-110 hover:bg-purple-600"
+              className="md:hidden p-3 bg-purple-500 text-white rounded-full shadow-lg transform transition-transform duration-200 hover:scale-110 hover:bg-purple-600 cursor-pointer"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileMenuOpen ? <X className="h-6 w-6 cursor-pointer" /> : <Menu className="h-6 w-6 cursor-pointer" />}
             </button>
           </div>
         </div>
@@ -112,10 +112,10 @@ export default function Navigation() {
                   <button
                     key={sec}
                     onClick={() => scrollToSection(sec)}
-                    className={`block w-full text-left px-3 py-2 rounded-md transition-colors ${
+                    className={`block w-full text-left px-3 py-2 rounded-md transition-colors${
                       activeSection === sec
                         ? "bg-purple-50 text-purple-700 font-semibold"
-                        : "text-neutral-600 hover:bg-purple-50 hover:text-purple-700"
+                        : "text-neutral-600 hover:bg-purple-50 hover:text-purple-700 cursor-pointer"
                     }`}
                   >
                     {sec.charAt(0).toUpperCase() + sec.slice(1)}

@@ -148,7 +148,7 @@ export default function ContactForm() {
                     <FormControl>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger className={sharedInputClasses}>
-                          <SelectValue placeholder="Select Package*" />
+                          <SelectValue placeholder="Select Package*" className ="cursor-pointer"/>
                         </SelectTrigger>
                         <SelectContent className="bg-black text-white border border-gray-600 rounded-md shadow-inner shadow-black/25 z-50 mt-1 text-sm sm:text-base max-h-60 overflow-y-autobg-black text-white border border-gray-600 rounded-md shadow-inner shadow-black/25 z-50 mt-1 text-sm sm:text-base max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black  ">
                           {["standard", "video", "alacarte"].map((pkg) => (
@@ -228,7 +228,7 @@ export default function ContactForm() {
                 <Button
                   type="submit"
                   disabled={contactMutation.status === "pending"}
-                  className="w-full px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-md transition-all duration-200 hover:scale-[1.03] active:scale-95 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none shadow-lg relative overflow-hidden"
+                  className="w-full px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-md transition-all duration-200 hover:scale-[1.03] active:scale-95 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none shadow-lg relative overflow-hidden cursor-pointer"
                 >
                   {contactMutation.status === "pending"
                     ? "Sending..."

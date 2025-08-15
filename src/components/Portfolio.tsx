@@ -55,7 +55,7 @@ export default function Portfolio() {
           <button
             key={category}
             onClick={() => setSelectedCategory(category as any)}
-            className={`px-4 py-2 rounded-md font-medium ${
+            className={`px-4 py-2 rounded-md font-medium cursor-pointer ${
               selectedCategory === category
                 ? "bg-black text-white"
                 : "bg-gray-200 hover:bg-gray-300"

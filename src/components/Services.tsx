@@ -62,7 +62,7 @@ export default function PricingPackages() {
               </ul>
               <Button
                 onClick={() => handleChoosePackage("standard")}
-                className="mt-auto w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-300"
+                className="mt-auto w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-300 cursor-pointer"
               >
                 Choose Standard
               </Button>
@@ -95,7 +95,7 @@ export default function PricingPackages() {
               </ul>
               <Button
                 onClick={() => handleChoosePackage("video")}
-                className="mt-auto w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-300"
+                className="mt-auto w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-300 cursor-pointer"
               >
                 Choose Video
               </Button>
@@ -124,7 +124,7 @@ export default function PricingPackages() {
               <Button
                 onClick={() => handleChoosePackage("alacarte")}
                 variant="outline"
-                className="mt-auto w-full bg-gradient-to-r from-indigo-100 to-purple-100 hover:from-indigo-200 hover:to-purple-200 text-neutral-800 font-bold rounded-lg shadow-sm transition-all duration-300"
+                className="mt-auto w-full bg-gradient-to-r from-indigo-100 to-purple-100 hover:from-indigo-200 hover:to-purple-200 text-neutral-800 font-bold rounded-lg shadow-sm transition-all duration-300 cursor-pointer"
               >
                 Contact for Quote
               </Button>
