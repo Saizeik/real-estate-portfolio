@@ -48,7 +48,7 @@ export default function Portfolio() {
   };
 
   return (
-    <section className="py-12 px-4">
+    <section id ="portfolio" className="py-12 px-4">
       {/* Category Filter */}
       <div className="flex justify-center gap-4 mb-8">
         {["all", "interior", "exterior"].map((category) => (

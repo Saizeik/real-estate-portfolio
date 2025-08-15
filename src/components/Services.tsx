@@ -22,7 +22,7 @@ export default function PricingPackages() {
   };
 
   return (
-    <section id="pricing" className="relative py-16 sm:py-20 bg-neutral-50 overflow-hidden">
+    <section id="services" className="relative py-16 sm:py-20 bg-neutral-50 overflow-hidden">
       {/* Animated Background Shapes */}
       <div className="absolute -top-32 -left-32 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-200 rounded-full opacity-30 animate-blob"></div>
       <div className="absolute -bottom-32 -right-32 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-r from-pink-200 via-purple-300 to-indigo-200 rounded-full opacity-30 animate-blob animation-delay-2000"></div>

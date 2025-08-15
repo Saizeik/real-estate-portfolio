@@ -12,13 +12,12 @@
     --foreground: #ededed;
   }
 }
-html, body {
-  overflow-x: hidden; /* prevents horizontal scroll, good */
-}
+
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
-  /* Ensure the page uses the device width */
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -26,17 +25,18 @@ body {
   padding: 0;
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'cursive', sans-serif;
+  font-family: 'cursive', sans-serif; /* body default */
   overflow-x: hidden; /* prevent horizontal scroll */
 }
 
-/* Text elements */
+/* Paragraphs */
 p {
   font-family: 'cursive', sans-serif;
 }
 
+/* Headings */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', sans-serif;
+  font-family: 'Playfair Display', serif;
 }
 
 /* Buttons */
@@ -48,8 +48,8 @@ button {
 img, video {
   max-width: 100%;
   height: auto;
-  display: block; /* remove inline spacing issues */
-  object-fit: cover; /* ensures aspect ratio is preserved */
+  display: block; /* removes inline spacing issues */
+  object-fit: cover; /* preserve aspect ratio */
 }
 
 /* Responsive container helper */
@@ -61,5 +61,3 @@ img, video {
   margin-left: auto;
   margin-right: auto;
 }
-
-

@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,14 +10,22 @@ export default function Navigation() {
 
   const sections = ["home", "portfolio", "services", "contact"];
 
-  // Scroll to section
+  // Scroll to section with offset for fixed header & iOS Safari tweak
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const offsetTop = element.offsetTop - 64; // Adjust for fixed header
-      window.scrollTo({ top: offsetTop, behavior: "smooth" });
+      const headerHeight = document.querySelector("nav")?.clientHeight || 64;
+      const extraOffset = 2; // extra 2px for Safari fix
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      const offsetPosition = elementPosition - headerHeight - extraOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+
       setActiveSection(sectionId);
-      setMobileMenuOpen(false); // Close mobile menu
+      setMobileMenuOpen(false);
     }
   };
 
@@ -53,7 +62,7 @@ export default function Navigation() {
       <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-md rounded-b-xl z-50 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Brand */}
+            {/* Brand / Logo */}
             <div
               className="text-2xl sm:text-3xl font-serif font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 transition-transform duration-200 cursor-pointer"
               onClick={() => scrollToSection("home")}
