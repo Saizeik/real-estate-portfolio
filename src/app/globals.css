@@ -12,7 +12,9 @@
     --foreground: #ededed;
   }
 }
-
+html, body {
+  overflow-x: hidden; /* prevents horizontal scroll, good */
+}
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
@@ -62,9 +64,4 @@ img, video {
   margin-right: auto;
 }
 
-/* Optional: prevent touch zoom issues on mobile */
-@media (max-width: 640px) {
-  html, body {
-    font-size: 16px; /* ensures readable text on mobile */
-  }
-}
+
