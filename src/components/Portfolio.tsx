@@ -1,130 +1,94 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
+import { useState } from "react";
+import { portfolioItems } from "@/components/data/portfolio";
+import LightboxModal from "@/components/LightboxModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { portfolioItems, PortfolioItem } from "@/components/data/portfolio";
 
-const FILTERS = ["all", "interior", "exterior"] as const;
-type Filter = (typeof FILTERS)[number];
+export default function Portfolio() {
+  const [selectedCategory, setSelectedCategory] = useState<"all" | "interior" | "exterior">("all");
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-export default function PortfolioGallery() {
-  const [activeFilter, setActiveFilter] = useState<Filter>("all");
-  const [visibleItems, setVisibleItems] = useState<PortfolioItem[]>(portfolioItems);
-  const [lightboxImage, setLightboxImage] = useState<PortfolioItem | null>(null);
+  const filteredItems =
+    selectedCategory === "all"
+      ? portfolioItems
+      : portfolioItems.filter((item) => item.category === selectedCategory);
 
-  // Filter items and animate transitions
-  useEffect(() => {
-    const filtered =
-      activeFilter === "all"
-        ? portfolioItems
-        : portfolioItems.filter(item => item.category === activeFilter);
+  // Randomized delay + horizontal offset for shuffle effect
+  const getRandomDelay = (index: number) => 0.05 + Math.random() * 0.1 + index * 0.03;
+  const getRandomX = () => (Math.random() - 0.5) * 20; // random x between -10 and 10
 
-    setVisibleItems([]);
-    const timer = setTimeout(() => setVisibleItems(filtered), 50);
-    return () => clearTimeout(timer);
-  }, [activeFilter]);
-
-  const openLightbox = useCallback((item: PortfolioItem) => {
-    setLightboxImage(item);
-    if (window.innerWidth < 1024) document.body.style.overflow = "hidden";
-  }, []);
-
-  const closeLightbox = useCallback(() => {
-    setLightboxImage(null);
-    document.body.style.overflow = "auto";
-  }, []);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20, x: getRandomX() },
+    visible: (index: number) => ({
+      opacity: 1,
+      y: 0,
+      x: 0,
+      transition: { delay: getRandomDelay(index), duration: 0.35 },
+    }),
+    exit: (index: number) => ({
+      opacity: 0,
+      y: -20,
+      x: getRandomX(),
+      transition: { delay: getRandomDelay(index), duration: 0.25 },
+    }),
+  };
 
   return (
-    <section id="portfolio" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="font-playfair text-3xl md:text-4xl font-semibold text-neutral-800 mb-4">
-            Portfolio
-          </h2>
-          <p className="text-lg text-neutral-600 font-semibold max-w-2xl mx-auto">
-            Explore work showcasing beautiful homes and properties
-          </p>
-        </div>
+    <section className="py-12 px-4">
+      {/* Category Filter */}
+      <div className="flex justify-center gap-4 mb-8">
+        {["all", "interior", "exterior"].map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category as any)}
+            className={`px-4 py-2 rounded-md font-medium ${
+              selectedCategory === category
+                ? "bg-black text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
+          >
+            {category.charAt(0).toUpperCase() + category.slice(1)}
+          </button>
+        ))}
+      </div>
 
-        {/* Filters */}
-        <div className="flex justify-center mb-12 flex-wrap gap-4">
-          {FILTERS.map(filter => (
-            <Button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={`px-6 py-2 rounded-sm font-medium transition-colors ${
-                activeFilter === filter
-                  ? "bg-neutral-800 text-white"
-                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
-              }`}
+      {/* Grid with AnimatePresence & staggered enter/exit */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" key={selectedCategory}>
+        <AnimatePresence>
+          {filteredItems.map((item, index) => (
+            <motion.div
+              key={item.src}
+              className="relative cursor-pointer group"
+              custom={index}
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={() => setLightboxIndex(index)}
             >
-              {filter.charAt(0).toUpperCase() + filter.slice(1)}
-            </Button>
+              <div className="aspect-[4/3] w-full overflow-hidden rounded-lg h-64 sm:h-72 lg:h-80">
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <span className="absolute bottom-2 left-2 bg-black/70 text-white px-3 py-1 text-sm rounded">
+                {item.category}
+              </span>
+            </motion.div>
           ))}
-        </div>
-
-        {/* Gallery with AnimatePresence */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence>
-            {visibleItems.map((item, idx) => (
-              <motion.div
-                key={`${item.id}-${idx}`}
-                className="relative cursor-pointer overflow-hidden rounded-lg"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5, delay: idx * 0.05 }}
-                onClick={() => openLightbox(item)}
-              >
-                <div className="w-full aspect-[4/3] relative">
-                  <Image
-                    src={item.src}
-                    alt={item.alt}
-                    fill
-                    className="object-cover rounded-lg shadow-md transition-transform duration-500"
-                  />
-                  <span className="absolute bottom-2 left-2 bg-white/70 backdrop-blur-sm text-black text-sm px-2 py-1 rounded">
-                    {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+        </AnimatePresence>
       </div>
 
       {/* Lightbox */}
-      {lightboxImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4 overflow-auto"
-          onClick={closeLightbox}
-        >
-          <div
-            className="relative w-full max-w-[90%] max-h-[90%] rounded-lg overflow-auto"
-            onClick={e => e.stopPropagation()}
-          >
-            <button
-              onClick={closeLightbox}
-              className="absolute top-2 right-2 text-white text-3xl font-bold hover:text-gray-300 z-50"
-            >
-              ✕
-            </button>
-            <Image
-              src={lightboxImage.src}
-              alt={lightboxImage.alt}
-              width={1200}
-              height={900}
-              className="w-full h-auto object-contain rounded-lg shadow-lg"
-              priority
-            />
-            <div className="mt-2 bg-black bg-opacity-50 text-white text-center px-2 py-1 text-sm">
-              {lightboxImage.alt}
-            </div>
-          </div>
-        </div>
+      {lightboxIndex !== null && (
+        <LightboxModal
+          images={filteredItems}
+          startIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
       )}
     </section>
   );

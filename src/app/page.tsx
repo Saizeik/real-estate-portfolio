@@ -4,7 +4,7 @@ import PortfolioGallery from "@/components/Portfolio";
 import PricingPackages from "@/components/Services";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
-import LightboxModal from "@/components/lightbox-modal";
+
 import { ContactFormProvider } from "@/context/ContactFormContext";
 
 
@@ -32,7 +32,7 @@ export default function Home() {
       <Footer />
 
       {/* Lightbox Modal outside main flow */}
-      <LightboxModal />
+     
     </div>
   );
 }
