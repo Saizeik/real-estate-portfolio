@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* your custom styles below */
+/* Custom CSS Variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -13,16 +13,11 @@
   }
 }
 
+/* Smooth scroll */
 html {
   scroll-behavior: smooth;
-}
-
-img, video {
-  max-width: 100%;
-  height: auto;
-}
-
-html, body {
+  /* Ensure the page uses the device width */
+  width: 100%;
   overflow-x: hidden;
 }
 
@@ -32,8 +27,10 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: 'cursive', sans-serif;
+  overflow-x: hidden; /* prevent horizontal scroll */
 }
 
+/* Text elements */
 p {
   font-family: 'cursive', sans-serif;
 }
@@ -42,6 +39,32 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Playfair Display', sans-serif;
 }
 
+/* Buttons */
 button {
   font-family: 'Exo 2', sans-serif;
+}
+
+/* Media & Images */
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block; /* remove inline spacing issues */
+  object-fit: cover; /* ensures aspect ratio is preserved */
+}
+
+/* Responsive container helper */
+.container {
+  width: 100%;
+  max-width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Optional: prevent touch zoom issues on mobile */
+@media (max-width: 640px) {
+  html, body {
+    font-size: 16px; /* ensures readable text on mobile */
+  }
 }

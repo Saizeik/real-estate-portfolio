@@ -14,23 +14,36 @@ export default function Portfolio() {
       ? portfolioItems
       : portfolioItems.filter((item) => item.category === selectedCategory);
 
-  // Randomized delay + horizontal offset for shuffle effect
-  const getRandomDelay = (index: number) => 0.05 + Math.random() * 0.1 + index * 0.03;
-  const getRandomX = () => (Math.random() - 0.5) * 20; // random x between -10 and 10
+  // Random horizontal/vertical offset for shuffle effect
+  const getRandomOffset = () => ({
+    x: (Math.random() - 0.5) * 20, // -10 to +10px
+    y: (Math.random() - 0.5) * 20,
+  });
+
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
+  };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20, x: getRandomX() },
-    visible: (index: number) => ({
-      opacity: 1,
-      y: 0,
-      x: 0,
-      transition: { delay: getRandomDelay(index), duration: 0.35 },
+    hidden: (index: number) => ({
+      opacity: 0,
+      ...getRandomOffset(),
     }),
+    visible: {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      transition: { duration: 0.35 },
+    },
     exit: (index: number) => ({
       opacity: 0,
-      y: -20,
-      x: getRandomX(),
-      transition: { delay: getRandomDelay(index), duration: 0.25 },
+      ...getRandomOffset(),
+      transition: { duration: 0.25 },
     }),
   };
 
@@ -53,8 +66,14 @@ export default function Portfolio() {
         ))}
       </div>
 
-      {/* Grid with AnimatePresence & staggered enter/exit */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" key={selectedCategory}>
+      {/* Grid with stagger + shuffle */}
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        key={selectedCategory} // re-render on filter change
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <AnimatePresence>
           {filteredItems.map((item, index) => (
             <motion.div
@@ -80,7 +99,7 @@ export default function Portfolio() {
             </motion.div>
           ))}
         </AnimatePresence>
-      </div>
+      </motion.div>
 
       {/* Lightbox */}
       {lightboxIndex !== null && (
