@@ -62,7 +62,8 @@ export default function PricingPackages() {
               </ul>
               <Button
                 onClick={() => handleChoosePackage("standard")}
-                className="mt-auto w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-300 cursor-pointer"
+                className="mt-auto w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-95 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none shadow-lg relative overflow-hidden cursor-pointer"
+                
               >
                 Choose Standard
               </Button>
@@ -95,8 +96,9 @@ export default function PricingPackages() {
               </ul>
               <Button
                 onClick={() => handleChoosePackage("video")}
-                className="mt-auto w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-300 cursor-pointer"
-              >
+                className="mt-auto w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-medium rounded-lg shadow-md transition-all duration-200 hover:scale-[1.03] active:scale-95 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none shadow-lg relative overflow-hidden cursor-pointer"
+                >
+              
                 Choose Video
               </Button>
             </CardContent>
@@ -124,7 +126,8 @@ export default function PricingPackages() {
               <Button
                 onClick={() => handleChoosePackage("alacarte")}
                 variant="outline"
-                className="mt-auto w-full bg-gradient-to-r from-indigo-100 to-purple-100 hover:from-indigo-200 hover:to-purple-200 text-neutral-800 font-bold rounded-lg shadow-sm transition-all duration-300 cursor-pointer"
+                className="mt-auto w-full bg-gradient-to-r from-indigo-100 to-purple-100 hover:from-indigo-200 hover:to-purple-200 text-neutral-800 font-bold rounded-lg shadow-sm transition-all duration-200 hover:scale-[1.03] active:scale-95 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none shadow-lg relative overflow-hidden cursor-pointer"
+                
               >
                 Contact for Quote
               </Button>
