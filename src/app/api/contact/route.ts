@@ -25,9 +25,10 @@ export async function POST(req: NextRequest) {
 
     // Send email using Resend
     await resend.emails.send({
-      from: "support@stephaniekayephotography.com", // Replace with your verified "from" email
+      from: "Stephanie Kaye Photography <onboarding@resend.dev>", // Replace with your verified "from" email
       to: "stephanie@stephaniekayephotography.com", // Your email
       subject: `New Contact Form Submission from ${formData.name}`,
+      replyTo: formData.email,
       html: `
         <h1>New Contact Form Submission</h1>
         <p><strong>Name:</strong> ${formData.name}</p>
