@@ -31,8 +31,8 @@ export async function POST(req: NextRequest) {
       .setFrom(sentFrom)
       .setTo([
         {
-          email: "stephanie@stephaniekayephotography.com",
-          name: "Stephanie",
+          email: "nathan@stephaniekayephotography.com",
+          name: "Nathan",
         },
       ])
       .setSubject(`New Contact Form Submission from ${formData.name}`)
