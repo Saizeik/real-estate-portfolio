@@ -1,42 +1,87 @@
 // src/app/api/contact/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import { MailerSend, EmailParams, Sender } from "mailersend";
 import { contactFormSchema, type ContactFormData } from "@/types/contact";
 
-// Make sure the API key exists
-if (!process.env.RESEND_API_KEY) {
-  throw new Error("Missing RESEND_API_KEY in environment variables");
+if (!process.env.MAILERSEND_API_KEY) {
+  throw new Error("Missing MAILERSEND_API_KEY in environment variables");
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const mailersend = new MailerSend({
+  apiKey: process.env.MAILERSEND_API_KEY,
+});
 
 export async function POST(req: NextRequest) {
   try {
-    // Parse JSON body
     const body = await req.json();
-
-    // Validate form data
     const formData = contactFormSchema.parse(body) as ContactFormData;
 
-    // Optional: Skip sending if honeypot is filled
+    // Honeypot spam check
     if (formData.honey) {
-      return NextResponse.json({ success: true }); // silently ignore bots
+      return NextResponse.json({ success: true });
     }
 
-    // Send email using Resend
-    await resend.emails.send({
-      from: "Stephanie Kaye Photography <onboarding@resend.dev>", // Replace with your verified "from" email
-      to: "stephanie@stephaniekayephotography.com", // Your email
-      subject: `New Contact Form Submission from ${formData.name}`,
-      replyTo: formData.email,
-      html: `
+    const sentFrom = new Sender(
+      "support@stephaniekayephotography.com",
+      "Stephanie Kaye Photography"
+    );
+
+    // ----------- 📩 Email to You -----------
+    const notifyEmail = new EmailParams()
+      .setFrom(sentFrom)
+      .setTo([
+        {
+          email: "stephanie@stephaniekayephotography.com",
+          name: "Stephanie",
+        },
+      ])
+      .setSubject(`New Contact Form Submission from ${formData.name}`)
+      .setHtml(`
         <h1>New Contact Form Submission</h1>
         <p><strong>Name:</strong> ${formData.name}</p>
         <p><strong>Email:</strong> ${formData.email}</p>
         <p><strong>Package:</strong> ${formData.package}</p>
         <p><strong>Questions:</strong> ${formData.questions || "None"}</p>
-      `,
-    });
+      `)
+      .setText(
+        `New Contact Form Submission\n\n` +
+          `Name: ${formData.name}\n` +
+          `Email: ${formData.email}\n` +
+          `Package: ${formData.package}\n` +
+          `Questions: ${formData.questions || "None"}\n`
+      );
+
+    // ----------- 📩 Auto-Reply to User -----------
+    const confirmationEmail = new EmailParams()
+      .setFrom(sentFrom)
+      .setTo([
+        {
+          email: formData.email,
+          name: formData.name,
+        },
+      ])
+      .setSubject("We received your message ✨")
+      .setHtml(`
+        <h1>Thank you, ${formData.name}!</h1>
+        <p>Your message has been received. I’ll get back to you as soon as possible.</p>
+        <p><strong>Here’s a copy of what you submitted:</strong></p>
+        <p><strong>Package:</strong> ${formData.package}</p>
+        <p><strong>Questions:</strong> ${formData.questions || "None"}</p>
+        <br/>
+        <p>— Stephanie Kaye Photography</p>
+      `)
+      .setText(
+        `Hi ${formData.name},\n\n` +
+          `Thanks for reaching out! I’ve received your message and will reply shortly.\n\n` +
+          `Here’s what you submitted:\n` +
+          `Package: ${formData.package}\n` +
+          `Questions: ${formData.questions || "None"}\n\n` +
+          `— Stephanie Kaye Photography`
+      );
+
+    // Send both emails
+    await mailersend.email.send(notifyEmail);
+    await mailersend.email.send(confirmationEmail);
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
