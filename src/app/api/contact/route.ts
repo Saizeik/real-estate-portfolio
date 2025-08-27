@@ -1,37 +1,49 @@
-import { NextRequest, NextResponse } from "next/server";
-import { MailerSend, EmailParams, Recipient } from "mailersend";
+import { MailerSend, EmailParams, Recipient, Sender } from "mailersend";
 
-const mailerSend = new MailerSend({
-  apiKey: process.env.MAILERSEND_API_KEY as string,
-});
-
-// Replace with your MailerSend admin email (the one tied to your account)
-const ADMIN_EMAIL = "your-admin-email@example.com";
-
-// Real recipient (blocked in trial, but we’ll forward info into the email body)
-const REAL_RECIPIENT = "nathan@stephaniekayephotography.com";
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { name, email, message } = body;
+    const { name, email, message } = await req.json();
 
-    // Always send to your admin email during trial
+    const mailerSend = new MailerSend({
+      apiKey: process.env.MAILERSEND_API_KEY as string,
+    });
+
+    // --- Sender (must be verified in MailerSend) ---
+    const from: Sender = {
+      email: "no-reply@stephaniekayephotography.com",
+      name: "Website Contact",
+    };
+
+    // --- Recipient(s) ---
+    const REAL_RECIPIENT = "nathan@stephaniekayephotography.com";
     const recipients: Recipient[] = [
-      new Recipient(ADMIN_EMAIL, "Admin Inbox"),
+      {
+        email: REAL_RECIPIENT,
+        name: "Nathan Walker", // optional, can be left empty
+      },
     ];
 
+    // --- Email params ---
     const emailParams = new EmailParams()
-      .setFrom("no-reply@stephaniekayephotography.com") // must be verified domain
+      .setFrom(from)
       .setTo(recipients)
       .setSubject(`📩 Contact Form (intended for: ${REAL_RECIPIENT})`)
-      .setText(`From: ${name} <${email}>\n\nMessage:\n${message}\n\n---\nThis message was intended for: ${REAL_RECIPIENT}`);
+      .setText(
+        `From: ${name} <${email}>\n\nMessage:\n${message}\n\n---\nThis message was intended for: ${REAL_RECIPIENT}`
+      );
 
-    await mailerSend.email.send(emailParams);
+    // --- Send the email ---
+    const response = await mailerSend.email.send(emailParams);
 
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
+    return new Response(
+      JSON.stringify({ success: true, response }),
+      { status: 200 }
+    );
+  } catch (error) {
     console.error("Error in /api/contact:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return new Response(
+      JSON.stringify({ success: false, error }),
+      { status: 500 }
+    );
   }
 }
