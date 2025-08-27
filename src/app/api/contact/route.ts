@@ -1,94 +1,37 @@
-// src/app/api/contact/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { MailerSend, EmailParams, Sender } from "mailersend";
-import { contactFormSchema, type ContactFormData } from "@/types/contact";
+import { MailerSend, EmailParams, Recipient } from "mailersend";
 
-if (!process.env.MAILERSEND_API_KEY) {
-  throw new Error("Missing MAILERSEND_API_KEY in environment variables");
-}
-
-const mailersend = new MailerSend({
-  apiKey: process.env.MAILERSEND_API_KEY,
+const mailerSend = new MailerSend({
+  apiKey: process.env.MAILERSEND_API_KEY as string,
 });
+
+// Replace with your MailerSend admin email (the one tied to your account)
+const ADMIN_EMAIL = "your-admin-email@example.com";
+
+// Real recipient (blocked in trial, but we’ll forward info into the email body)
+const REAL_RECIPIENT = "nathan@stephaniekayephotography.com";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const formData = contactFormSchema.parse(body) as ContactFormData;
+    const { name, email, message } = body;
 
-    // Honeypot spam check
-    if (formData.honey) {
-      return NextResponse.json({ success: true });
-    }
+    // Always send to your admin email during trial
+    const recipients: Recipient[] = [
+      new Recipient(ADMIN_EMAIL, "Admin Inbox"),
+    ];
 
-    const sentFrom = new Sender(
-      "support@stephaniekayephotography.com",
-      "Stephanie Kaye Photography"
-    );
+    const emailParams = new EmailParams()
+      .setFrom("no-reply@stephaniekayephotography.com") // must be verified domain
+      .setTo(recipients)
+      .setSubject(`📩 Contact Form (intended for: ${REAL_RECIPIENT})`)
+      .setText(`From: ${name} <${email}>\n\nMessage:\n${message}\n\n---\nThis message was intended for: ${REAL_RECIPIENT}`);
 
-    // ----------- 📩 Email to You -----------
-    const notifyEmail = new EmailParams()
-      .setFrom(sentFrom)
-      .setTo([
-        {
-          email: "nathan@stephaniekayephotography.com",
-          name: "Nathan",
-        },
-      ])
-      .setSubject(`New Contact Form Submission from ${formData.name}`)
-      .setHtml(`
-        <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${formData.name}</p>
-        <p><strong>Email:</strong> ${formData.email}</p>
-        <p><strong>Package:</strong> ${formData.package}</p>
-        <p><strong>Questions:</strong> ${formData.questions || "None"}</p>
-      `)
-      .setText(
-        `New Contact Form Submission\n\n` +
-          `Name: ${formData.name}\n` +
-          `Email: ${formData.email}\n` +
-          `Package: ${formData.package}\n` +
-          `Questions: ${formData.questions || "None"}\n`
-      );
-
-    // ----------- 📩 Auto-Reply to User -----------
-    const confirmationEmail = new EmailParams()
-      .setFrom(sentFrom)
-      .setTo([
-        {
-          email: formData.email,
-          name: formData.name,
-        },
-      ])
-      .setSubject("We received your message ✨")
-      .setHtml(`
-        <h1>Thank you, ${formData.name}!</h1>
-        <p>Your message has been received. I’ll get back to you as soon as possible.</p>
-        <p><strong>Here’s a copy of what you submitted:</strong></p>
-        <p><strong>Package:</strong> ${formData.package}</p>
-        <p><strong>Questions:</strong> ${formData.questions || "None"}</p>
-        <br/>
-        <p>— Stephanie Kaye Photography</p>
-      `)
-      .setText(
-        `Hi ${formData.name},\n\n` +
-          `Thanks for reaching out! I’ve received your message and will reply shortly.\n\n` +
-          `Here’s what you submitted:\n` +
-          `Package: ${formData.package}\n` +
-          `Questions: ${formData.questions || "None"}\n\n` +
-          `— Stephanie Kaye Photography`
-      );
-
-    // Send both emails
-    await mailersend.email.send(notifyEmail);
-    await mailersend.email.send(confirmationEmail);
+    await mailerSend.email.send(emailParams);
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    console.error("Error in /api/contact:", err);
-    return NextResponse.json(
-      { error: err?.message || "Something went wrong" },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    console.error("Error in /api/contact:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
