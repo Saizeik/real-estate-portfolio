@@ -1,14 +1,12 @@
 // src/app/api/contact/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
+import { MailerSend, EmailParams, Recipient, Sender } from "mailersend";
 import { contactFormSchema, type ContactFormData } from "@/types/contact";
 
-// Ensure API key exists
 if (!process.env.MAILERSEND_API_KEY) {
   throw new Error("Missing MAILERSEND_API_KEY in environment variables");
 }
 
-// Initialize MailerSend
 const mailersend = new MailerSend({
   apiKey: process.env.MAILERSEND_API_KEY,
 });
@@ -23,18 +21,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // Verified sender
     const sentFrom = new Sender(
       "support@stephaniekayephotography.com",
       "Stephanie Kaye Photography"
     );
 
-    // ----------- 📩 Email to You -----------
+    // ----------- 📩 Email to Admin -----------
+    const notifyRecipients: Recipient[] = [
+      new Recipient("nathan@stephaniekayephotography.com", "Nathan"),
+    ];
+
     const notifyEmail = new EmailParams()
       .setFrom(sentFrom)
-      .setTo([
-        new Recipient("nathan@stephaniekayephotography.com", "Nathan"),
-      ])
+      .setTo(notifyRecipients) // <-- must be array
       .setSubject(`New Contact Form Submission from ${formData.name}`)
       .setHtml(`
         <h1>New Contact Form Submission</h1>
@@ -52,9 +51,13 @@ export async function POST(req: NextRequest) {
       );
 
     // ----------- 📩 Auto-Reply to User -----------
+    const confirmationRecipients: Recipient[] = [
+      new Recipient(formData.email, formData.name),
+    ];
+
     const confirmationEmail = new EmailParams()
       .setFrom(sentFrom)
-      .setTo([new Recipient(formData.email, formData.name)])
+      .setTo(confirmationRecipients) // <-- must be array
       .setSubject("We received your message ✨")
       .setHtml(`
         <h1>Thank you, ${formData.name}!</h1>
