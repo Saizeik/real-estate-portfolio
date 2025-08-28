@@ -29,19 +29,12 @@ export async function POST(req: NextRequest) {
       "Stephanie Kaye Photography"
     );
 
-    // Recipient (your inbox)
-    const notifyRecipient = new Recipient(
-      "nathan@stephaniekayephotography.com",
-      "Nathan"
-    );
-
-    // Recipient (user submitting form)
-    const userRecipient = new Recipient(formData.email, formData.name);
-
     // ----------- 📩 Email to You -----------
     const notifyEmail = new EmailParams()
       .setFrom(sentFrom)
-      .setTo(notifyRecipient)
+      .setTo([
+        new Recipient("nathan@stephaniekayephotography.com", "Nathan"),
+      ])
       .setSubject(`New Contact Form Submission from ${formData.name}`)
       .setHtml(`
         <h1>New Contact Form Submission</h1>
@@ -61,7 +54,7 @@ export async function POST(req: NextRequest) {
     // ----------- 📩 Auto-Reply to User -----------
     const confirmationEmail = new EmailParams()
       .setFrom(sentFrom)
-      .setTo(userRecipient)
+      .setTo([new Recipient(formData.email, formData.name)])
       .setSubject("We received your message ✨")
       .setHtml(`
         <h1>Thank you, ${formData.name}!</h1>
