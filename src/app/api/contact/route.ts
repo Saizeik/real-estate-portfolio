@@ -1,38 +1,17 @@
+// src/app/api/contact/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { MailerSend, EmailParams, Recipient, Sender } from "mailersend";
+import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
 import { contactFormSchema, type ContactFormData } from "@/types/contact";
 
+// Ensure API key exists
 if (!process.env.MAILERSEND_API_KEY) {
   throw new Error("Missing MAILERSEND_API_KEY in environment variables");
 }
 
+// Initialize MailerSend
 const mailersend = new MailerSend({
   apiKey: process.env.MAILERSEND_API_KEY,
 });
-
-async function checkDomainStatus(domain: string) {
-  try {
-    const domains = await mailersend.domains.list();
-    const matched = domains.find(d => d.domain === domain);
-    if (!matched) {
-      console.warn(`⚠️ Domain "${domain}" is not added in MailerSend.`);
-      return false;
-    }
-    if (!matched.verified) {
-      console.warn(`⚠️ Domain "${domain}" is added but not verified.`);
-    }
-    if (!matched.dkim_valid) {
-      console.warn(`⚠️ DKIM is not valid for domain "${domain}". Emails may be rejected.`);
-    }
-    if (!matched.spf_valid) {
-      console.warn(`⚠️ SPF is not valid for domain "${domain}". Emails may be rejected.`);
-    }
-    return matched.verified && matched.dkim_valid && matched.spf_valid;
-  } catch (err) {
-    console.error("Error checking domain status:", err);
-    return false;
-  }
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,25 +23,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // Check domain readiness
-    const domain = "stephaniekayephotography.com";
-    const domainReady = await checkDomainStatus(domain);
-    if (!domainReady) {
-      console.warn(
-        `⚠️ Emails may fail sending because "${domain}" is not fully verified or DKIM/SPF not set correctly.`
-      );
-    }
-
+    // Verified sender
     const sentFrom = new Sender(
-      `support@${domain}`,
+      "support@stephaniekayephotography.com",
       "Stephanie Kaye Photography"
     );
+
+    // Recipient (your inbox)
+    const notifyRecipient = new Recipient(
+      "nathan@stephaniekayephotography.com",
+      "Nathan"
+    );
+
+    // Recipient (user submitting form)
+    const userRecipient = new Recipient(formData.email, formData.name);
 
     // ----------- 📩 Email to You -----------
     const notifyEmail = new EmailParams()
       .setFrom(sentFrom)
-      .setTo(new Recipient("nathan@stephaniekayephotography.com", "Nathan"))
-      .setReplyTo(new Recipient(formData.email, formData.name))
+      .setTo(notifyRecipient)
       .setSubject(`New Contact Form Submission from ${formData.name}`)
       .setHtml(`
         <h1>New Contact Form Submission</h1>
@@ -82,7 +61,7 @@ export async function POST(req: NextRequest) {
     // ----------- 📩 Auto-Reply to User -----------
     const confirmationEmail = new EmailParams()
       .setFrom(sentFrom)
-      .setTo(new Recipient(formData.email, formData.name))
+      .setTo(userRecipient)
       .setSubject("We received your message ✨")
       .setHtml(`
         <h1>Thank you, ${formData.name}!</h1>
