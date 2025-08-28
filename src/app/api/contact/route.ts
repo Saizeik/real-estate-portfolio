@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     // System/neutral sender (use MailerSend verified domain, e.g. mailersend.net)
     const fromSystem: Sender = {
-      email: "no-reply@mailersend.net", // ⚡ must be verified in MailerSend
+      email: "nathan@stephaniekayephotography.com", // ⚡ must be verified in MailerSend
       name: "Photography Notifications",
     };
 
