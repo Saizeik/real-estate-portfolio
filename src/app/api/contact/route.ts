@@ -1,6 +1,6 @@
 // src/app/api/contact/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { MailerSend, EmailParams, Recipient, Sender } from "mailersend";
+import { MailerSend, EmailParams } from "mailersend";
 import { contactFormSchema, type ContactFormData } from "@/types/contact";
 
 if (!process.env.MAILERSEND_API_KEY) {
@@ -21,19 +21,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    const sentFrom = new Sender(
-      "support@stephaniekayephotography.com",
-      "Stephanie Kaye Photography"
-    );
-
     // ----------- 📩 Email to Admin -----------
-    const notifyRecipients: Recipient[] = [
-      new Recipient("nathan@stephaniekayephotography.com", "Nathan"),
-    ];
-
     const notifyEmail = new EmailParams()
-      .setFrom(sentFrom)
-      .setTo(notifyRecipients) // <-- must be array
+      .setFrom({
+        email: "support@stephaniekayephotography.com",
+        name: "Stephanie Kaye Photography",
+      })
+      .setTo([
+        {
+          email: "nathan@stephaniekayephotography.com",
+          name: "Nathan",
+        },
+      ])
       .setSubject(`New Contact Form Submission from ${formData.name}`)
       .setHtml(`
         <h1>New Contact Form Submission</h1>
@@ -51,13 +50,17 @@ export async function POST(req: NextRequest) {
       );
 
     // ----------- 📩 Auto-Reply to User -----------
-    const confirmationRecipients: Recipient[] = [
-      new Recipient(formData.email, formData.name),
-    ];
-
     const confirmationEmail = new EmailParams()
-      .setFrom(sentFrom)
-      .setTo(confirmationRecipients) // <-- must be array
+      .setFrom({
+        email: "support@stephaniekayephotography.com",
+        name: "Stephanie Kaye Photography",
+      })
+      .setTo([
+        {
+          email: formData.email,
+          name: formData.name,
+        },
+      ])
       .setSubject("We received your message ✨")
       .setHtml(`
         <h1>Thank you, ${formData.name}!</h1>
