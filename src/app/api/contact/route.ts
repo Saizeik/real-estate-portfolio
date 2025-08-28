@@ -4,80 +4,73 @@ import { contactFormSchema, type ContactFormData } from "@/types/contact";
 
 export async function POST(req: NextRequest) {
   try {
-    // --- Validate body with Zod schema ---
     const body = await req.json();
-    const parsed = contactFormSchema.parse(body);
-    const { name, email, package: pkg, questions } = parsed as ContactFormData;
+    const parsed = contactFormSchema.parse(body); // ✅ validate input
+
+    const { name, email, package: pkg, questions } = parsed;
 
     const mailerSend = new MailerSend({
       apiKey: process.env.MAILERSEND_API_KEY as string,
     });
 
-    // --- From address (MUST be verified in MailerSend) ---
-    const from = new Sender(
-      "support@stephaniekayephotography.com", // must be verified in MailerSend
-      "Stephanie Kaye Photography"
-    );
+    // --- Senders ---
+    // Client-facing sender (your verified domain)
+    const fromSupport: Sender = {
+      email: "support@stephaniekayephotography.com",
+      name: "Stephanie Kaye Photography",
+    };
 
-    // --- 1. Notification email to you (Nathan) ---
-    const notifyEmailParams = new EmailParams()
-      .setFrom(from)
-      .setTo([new Recipient("nathan@stephaniekayephotography.com", "Nathan Walker")])
-      .setSubject(`📩 New Contact Form Submission from ${name}`)
-      .setText(
-        `You received a new contact form message:\n\n` +
-          `Name: ${name}\n` +
-          `Email: ${email}\n` +
-          `Package: ${pkg}\n` +
-          `Questions: ${questions || "None"}\n`
-      )
-      .setHtml(`
-        <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Package:</strong> ${pkg}</p>
-        <p><strong>Questions:</strong> ${questions || "None"}</p>
-      `);
+    // System/neutral sender (use MailerSend verified domain, e.g. mailersend.net)
+    const fromSystem: Sender = {
+      email: "no-reply@mailersend.net", // ⚡ must be verified in MailerSend
+      name: "Photography Notifications",
+    };
 
-    // --- 2. Confirmation email to client ---
-    const confirmEmailParams = new EmailParams()
-      .setFrom(from)
-      .setTo([new Recipient(email, name)])
-      .setSubject("✅ We received your message!")
+    // --- Recipients ---
+    const client: Recipient[] = [
+      {
+        email,
+        name,
+      },
+    ];
+
+    const admin: Recipient[] = [
+      {
+        email: "nathan@stephaniekayephotography.com",
+        name: "Nathan Walker",
+      },
+    ];
+
+    // --- Email to client (confirmation) ---
+    const clientEmail = new EmailParams()
+      .setFrom(fromSupport)
+      .setTo(client)
+      .setSubject("📸 Thanks for contacting Stephanie Kaye Photography!")
       .setText(
-        `Hi ${name},\n\n` +
-          `Thanks for reaching out to Stephanie Kaye Photography! We’ve received your message and will get back to you soon.\n\n` +
-          `Here’s what you sent:\n` +
-          `Package: ${pkg}\n` +
-          `Questions: ${questions || "None"}\n\n` +
-          `— Stephanie Kaye Photography`
-      )
-      .setHtml(`
-        <h1>Thank you for contacting Stephanie Kaye Photography!</h1>
-        <p>Hi ${name},</p>
-        <p>Thanks for reaching out! We’ve received your message and will get back to you soon.</p>
-        <h2>Your Submission:</h2>
-        <p><strong>Package:</strong> ${pkg}</p>
-        <p><strong>Questions:</strong> ${questions || "None"}</p>
-        <br/>
-        <p>— Stephanie Kaye Photography</p>
-      `);
+        `Hi ${name},\n\nThank you for reaching out about the ${pkg} package.\n\nWe’ll get back to you shortly!\n\nBest,\nStephanie`
+      );
+
+    // --- Email to admin (notification) ---
+    const adminEmail = new EmailParams()
+      .setFrom(fromSystem)
+      .setTo(admin)
+      .setSubject(`📩 New contact form submission from ${name}`)
+      .setText(
+        `From: ${name} <${email}>\n\nPackage: ${pkg}\n\nQuestions: ${questions || "N/A"}`
+      );
 
     // --- Send both emails ---
-    const [notifyRes, confirmRes] = await Promise.all([
-      mailerSend.email.send(notifyEmailParams),
-      mailerSend.email.send(confirmEmailParams),
+    const [clientRes, adminRes] = await Promise.all([
+      mailerSend.email.send(clientEmail),
+      mailerSend.email.send(adminEmail),
     ]);
 
     return NextResponse.json(
-      { success: true, notifyRes, confirmRes },
+      { success: true, clientRes, adminRes },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error in /api/contact:", error);
-    return NextResponse.json(
-      { success: false, error: (error as Error).message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error }, { status: 500 });
   }
 }
