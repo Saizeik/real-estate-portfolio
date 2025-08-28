@@ -1,6 +1,6 @@
 // src/app/api/contact/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { MailerSend, EmailParams, Sender } from "mailersend";
+import { MailerSend, EmailParams, Sender, Recipient } from "mailersend";
 import { contactFormSchema, type ContactFormData } from "@/types/contact";
 
 if (!process.env.MAILERSEND_API_KEY) {
@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
+    // ✅ Use a verified sender
     const sentFrom = new Sender(
       "support@stephaniekayephotography.com",
       "Stephanie Kaye Photography"
@@ -29,12 +30,9 @@ export async function POST(req: NextRequest) {
     // ----------- 📩 Email to You -----------
     const notifyEmail = new EmailParams()
       .setFrom(sentFrom)
-      .setTo([
-        {
-          email: "nathan@stephaniekayephotography.com",
-          name: "Nathan",
-        },
-      ])
+      .setTo([new Recipient("nathan@stephaniekayephotography.com", "Nathan")])
+      // ✅ Ensure replies go to the user
+      .setReplyTo([new Recipient(formData.email, formData.name)])
       .setSubject(`New Contact Form Submission from ${formData.name}`)
       .setHtml(`
         <h1>New Contact Form Submission</h1>
@@ -54,12 +52,7 @@ export async function POST(req: NextRequest) {
     // ----------- 📩 Auto-Reply to User -----------
     const confirmationEmail = new EmailParams()
       .setFrom(sentFrom)
-      .setTo([
-        {
-          email: formData.email,
-          name: formData.name,
-        },
-      ])
+      .setTo([new Recipient(formData.email, formData.name)])
       .setSubject("We received your message ✨")
       .setHtml(`
         <h1>Thank you, ${formData.name}!</h1>
