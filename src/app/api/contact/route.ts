@@ -1,37 +1,37 @@
-// src/app/api/contact/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { MailerSend, EmailParams } from "mailersend";
-import { contactFormSchema, type ContactFormData } from "@/types/contact";
+// app/api/contact/route.ts
+import { NextResponse } from "next/server";
+import { MailerSend, EmailParams, Recipient, Sender } from "mailersend";
 
-if (!process.env.MAILERSEND_API_KEY) {
-  throw new Error("Missing MAILERSEND_API_KEY in environment variables");
-}
-
-const mailersend = new MailerSend({
-  apiKey: process.env.MAILERSEND_API_KEY,
-});
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const formData = contactFormSchema.parse(body) as ContactFormData;
+    const formData: {
+      name: string;
+      email: string;
+      package: string;
+      questions?: string;
+      honey?: string;
+    } = await req.json();
 
-    // Honeypot spam check
-    if (formData.honey) {
-      return NextResponse.json({ success: true });
+    // --- Honeypot spam check ---
+    if (formData.honey && formData.honey.trim() !== "") {
+      return NextResponse.json({ success: true, message: "Ignored spam bot." });
     }
 
-    // ----------- 📩 Email to Admin -----------
+    // --- Setup MailerSend client ---
+    const mailerSend = new MailerSend({
+      apiKey: process.env.MAILERSEND_API_KEY!,
+    });
+
+    const sentFrom = new Sender(
+      "no-reply@stephaniekayephotography.com", // must match verified MailerSend sender domain
+      "Stephanie Kaye Photography"
+    );
+
+    // ----------- 📩 Email to You (Notification) -----------
     const notifyEmail = new EmailParams()
-      .setFrom({
-        email: "support@stephaniekayephotography.com",
-        name: "Stephanie Kaye Photography",
-      })
+      .setFrom(sentFrom)
       .setTo([
-        {
-          email: "nathan@stephaniekayephotography.com",
-          name: "Nathan",
-        },
+        new Recipient("nathan@stephaniekayephotography.com", "Nathan"),
       ])
       .setSubject(`New Contact Form Submission from ${formData.name}`)
       .setHtml(`
@@ -49,18 +49,10 @@ export async function POST(req: NextRequest) {
           `Questions: ${formData.questions || "None"}\n`
       );
 
-    // ----------- 📩 Auto-Reply to User -----------
+    // ----------- 📩 Confirmation Email to User -----------
     const confirmationEmail = new EmailParams()
-      .setFrom({
-        email: "support@stephaniekayephotography.com",
-        name: "Stephanie Kaye Photography",
-      })
-      .setTo([
-        {
-          email: formData.email,
-          name: formData.name,
-        },
-      ])
+      .setFrom(sentFrom)
+      .setTo([new Recipient(formData.email, formData.name)])
       .setSubject("We received your message ✨")
       .setHtml(`
         <h1>Thank you, ${formData.name}!</h1>
@@ -80,15 +72,15 @@ export async function POST(req: NextRequest) {
           `— Stephanie Kaye Photography`
       );
 
-    // Send both emails
-    await mailersend.email.send(notifyEmail);
-    await mailersend.email.send(confirmationEmail);
+    // --- Send both emails ---
+    await mailerSend.email.send(notifyEmail);
+    await mailerSend.email.send(confirmationEmail);
 
-    return NextResponse.json({ success: true });
-  } catch (err: any) {
-    console.error("Error in /api/contact:", err);
+    return NextResponse.json({ success: true, message: "Emails sent!" });
+  } catch (error: any) {
+    console.error("Email sending failed:", error);
     return NextResponse.json(
-      { error: err?.message || "Something went wrong" },
+      { success: false, error: error.message || "Failed to send emails" },
       { status: 500 }
     );
   }
