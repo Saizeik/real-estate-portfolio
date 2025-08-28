@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     // --- Validate body with Zod schema ---
     const body = await req.json();
     const parsed = contactFormSchema.parse(body);
-    const { name, email, message } = parsed as ContactFormData;
+    const { name, email, package: pkg, questions } = parsed as ContactFormData;
 
     const mailerSend = new MailerSend({
       apiKey: process.env.MAILERSEND_API_KEY as string,
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     // --- From address (MUST be verified in MailerSend) ---
     const from = new Sender(
-      "support@stephaniekayephotography.com", // replace with your verified domain
+      "support@stephaniekayephotography.com", // must be verified in MailerSend
       "Stephanie Kaye Photography"
     );
 
@@ -26,8 +26,18 @@ export async function POST(req: NextRequest) {
       .setSubject(`📩 New Contact Form Submission from ${name}`)
       .setText(
         `You received a new contact form message:\n\n` +
-        `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}\n`
-      );
+          `Name: ${name}\n` +
+          `Email: ${email}\n` +
+          `Package: ${pkg}\n` +
+          `Questions: ${questions || "None"}\n`
+      )
+      .setHtml(`
+        <h1>New Contact Form Submission</h1>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Package:</strong> ${pkg}</p>
+        <p><strong>Questions:</strong> ${questions || "None"}</p>
+      `);
 
     // --- 2. Confirmation email to client ---
     const confirmEmailParams = new EmailParams()
@@ -36,12 +46,24 @@ export async function POST(req: NextRequest) {
       .setSubject("✅ We received your message!")
       .setText(
         `Hi ${name},\n\n` +
-        `Thanks for reaching out to Stephanie Kaye Photography! We’ve received your message and will get back to you soon.\n\n` +
-        `Here’s a copy of what you sent:\n\n${message}\n\n` +
-        `— Stephanie Kaye Photography`
-      );
+          `Thanks for reaching out to Stephanie Kaye Photography! We’ve received your message and will get back to you soon.\n\n` +
+          `Here’s what you sent:\n` +
+          `Package: ${pkg}\n` +
+          `Questions: ${questions || "None"}\n\n` +
+          `— Stephanie Kaye Photography`
+      )
+      .setHtml(`
+        <h1>Thank you for contacting Stephanie Kaye Photography!</h1>
+        <p>Hi ${name},</p>
+        <p>Thanks for reaching out! We’ve received your message and will get back to you soon.</p>
+        <h2>Your Submission:</h2>
+        <p><strong>Package:</strong> ${pkg}</p>
+        <p><strong>Questions:</strong> ${questions || "None"}</p>
+        <br/>
+        <p>— Stephanie Kaye Photography</p>
+      `);
 
-    // --- Send both emails separately ---
+    // --- Send both emails ---
     const [notifyRes, confirmRes] = await Promise.all([
       mailerSend.email.send(notifyEmailParams),
       mailerSend.email.send(confirmEmailParams),
