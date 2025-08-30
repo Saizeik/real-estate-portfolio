@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
     // --- Send Admin Email ---
     await client.sendEmail({
-      From: process.env.POSTMARK_SENDER!, // your verified sender
+      From: process.env.POSTMARK_FROM_EMAIL!, // your verified sender
       To: process.env.POSTMARK_ADMIN!,    // admin email
       Subject: `New Contact Form Submission from ${name}`,
       TextBody: `Name: ${name}\nEmail: ${email}\nPackage: ${pkg}\nQuestions: ${questions}`,
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     // --- Send User Confirmation Email (only if email is valid) ---
     if (email && email.trim() !== "") {
       await client.sendEmail({
-        From: process.env.POSTMARK_SENDER!,
+        From: process.env.POSTMARK_FROM_EMAIL!,
         To: email,
         Subject: "📸 Thanks for contacting us!",
         TextBody: `Hi ${name},\n\nThank you for reaching out! We received your message and will get back to you shortly.\n\nYour message:\n${questions}\n\n- The Team`,
