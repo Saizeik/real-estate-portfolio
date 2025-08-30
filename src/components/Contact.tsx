@@ -57,9 +57,8 @@ export default function ContactForm() {
       const json = await res.json();
 
       if (!res.ok) {
-        // Structured Zod errors from route.ts
+        // Map structured Zod errors to RHF
         if (json.errors && typeof json.errors === "object") {
-          // Map field errors into react-hook-form
           Object.entries(json.errors).forEach(([field, val]: any) => {
             if (field in form.getValues()) {
               const message = val?._errors?.[0] ?? "Invalid input";
@@ -67,7 +66,6 @@ export default function ContactForm() {
             }
           });
         }
-
         throw new Error(json.error || "Failed to send message");
       }
       return json;
@@ -78,15 +76,12 @@ export default function ContactForm() {
     },
     onError: (error: any) => {
       if (!Object.keys(form.formState.errors).length) {
-        // Only show toast if no inline field errors
         toast.error(error.message || "Something went wrong. Please try again.");
       }
     },
   });
 
-  const onSubmit = (data: ContactFormData) => {
-    contactMutation.mutate(data);
-  };
+  const onSubmit = (data: ContactFormData) => contactMutation.mutate(data);
 
   if (!mounted) return null;
 
@@ -102,20 +97,14 @@ export default function ContactForm() {
             <h2 className="Rajdhani text-2xl sm:text-3xl md:text-4xl font-semibold text-neutral-800">
               Let's Work Together!
             </h2>
-            <h3 className="text-lg sm:text-xl font-semibold text-neutral-800">
-              Get in Touch
-            </h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-neutral-800">Get in Touch</h3>
             <p className="text-neutral-600 font-semibold max-w-2xl mx-auto text-sm sm:text-base">
-              If you don't hear from me within 2 business days after submitting
-              your inquiry, feel free to contact me directly at:
+              If you don't hear from me within 2 business days after submitting your inquiry, feel free to contact me directly at:
             </p>
             <div className="mt-3 space-y-1 sm:space-y-2 text-sm sm:text-base">
               <p className="text-neutral-600">
                 <span className="font-semibold">Phone:</span>{" "}
-                <a
-                  href="tel:5202223943"
-                  className="text-indigo-600 font-bold hover:underline"
-                >
+                <a href="tel:5202223943" className="text-indigo-600 font-bold hover:underline">
                   (520) 222-3943
                 </a>
               </p>
