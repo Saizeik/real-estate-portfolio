@@ -57,12 +57,14 @@ export default function ContactForm() {
       const json = await res.json();
 
       if (!res.ok) {
-        // Parse Zod/API errors
-        const errorMessage =
-          json.errors?.message?.join(", ") || json.error || "Failed to send message";
-        throw new Error(errorMessage);
+        if (json.errors && Array.isArray(json.errors)) {
+          const messages = json.errors
+            .map((err: any) => `${err.path.join(".")}: ${err.message}`)
+            .join(", ");
+          throw new Error(messages);
+        }
+        throw new Error(json.error || "Failed to send message");
       }
-
       return json;
     },
     onSuccess: () => {
@@ -84,10 +86,7 @@ export default function ContactForm() {
     "w-full px-3 sm:px-4 py-3 rounded-md outline-none bg-black text-white placeholder-gray-400 border border-gray-600 shadow-inner shadow-black/25 focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50 transition-all duration-300";
 
   return (
-    <section
-      id="contact"
-      className="py-12 sm:py-16 bg-gradient-to-b from-neutral-50 to-white"
-    >
+    <section id="contact" className="py-12 sm:py-16 bg-gradient-to-b from-neutral-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto bg-white p-8 sm:p-12 rounded-xl shadow-2xl border border-neutral-100">
           {/* Header */}
@@ -131,11 +130,7 @@ export default function ContactForm() {
                           <Input
                             {...field}
                             type={fieldName === "email" ? "email" : "text"}
-                            placeholder={
-                              fieldName === "name"
-                                ? "Your Name*"
-                                : "Your Email*"
-                            }
+                            placeholder={fieldName === "name" ? "Your Name*" : "Your Email*"}
                             className={sharedInputClasses}
                           />
                         </FormControl>
@@ -155,7 +150,7 @@ export default function ContactForm() {
                     <FormControl>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger className={sharedInputClasses}>
-                          <SelectValue placeholder="Select Package*" className="cursor-pointer"/>
+                          <SelectValue placeholder="Select Package*" className="cursor-pointer" />
                         </SelectTrigger>
                         <SelectContent className="bg-black text-white border border-gray-600 rounded-md shadow-inner shadow-black/25 z-50 mt-1 text-sm sm:text-base max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black">
                           {["standard", "video", "alacarte"].map((pkg) => (
@@ -232,9 +227,7 @@ export default function ContactForm() {
                   disabled={contactMutation.status === "pending"}
                   className="w-full px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-md transition-all duration-200 hover:scale-[1.03] active:scale-95 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none shadow-lg relative overflow-hidden cursor-pointer"
                 >
-                  {contactMutation.status === "pending"
-                    ? "Sending..."
-                    : "Send Message"}
+                  {contactMutation.status === "pending" ? "Sending..." : "Send Message"}
                 </Button>
               </div>
             </form>

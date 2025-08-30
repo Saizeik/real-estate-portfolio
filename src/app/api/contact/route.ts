@@ -1,80 +1,65 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ServerClient } from "postmark";
-import { contactFormSchema, type ContactFormData } from "@/types/contact";
+import { z } from "zod";
+import postmark from "postmark";
+
+// Zod schema for validation
+const contactFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  package: z.string().min(1, "Package selection is required"),
+  questions: z.string().optional(),
+  honey: z.string().optional(),
+});
+
+// Admin email
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "";
+
+// Initialize Postmark client
+const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN!);
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // --- Parse and validate ---
-    let parsed: ContactFormData;
-    try {
-      parsed = contactFormSchema.parse(body);
-      // Ensure honeypot is empty
-      if (parsed.honey && parsed.honey.trim() !== "") {
-        return NextResponse.json(
-          { success: false, errors: { message: ["Bot detected"] } },
-          { status: 400 }
-        );
-      }
-    } catch (err: any) {
-      // Return Zod errors
-      const zodErrors = err.errors?.map((e: any) => e.message) || ["Invalid input"];
-      return NextResponse.json(
-        { success: false, errors: { message: zodErrors } },
-        { status: 400 }
-      );
+    // Honeypot check
+    if (body.honey) {
+      return NextResponse.json({ success: false, error: "Spam detected" }, { status: 400 });
     }
 
-    const { name, email, package: pkg, questions } = parsed;
+    // Validate input
+    const parsed = contactFormSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ success: false, errors: parsed.error.errors }, { status: 400 });
+    }
 
-    const client = new ServerClient(process.env.POSTMARK_API_KEY as string);
+    const { name, email, package: pkg, questions } = parsed.data;
 
-    // --- Email to client ---
-    const clientEmail = {
-      From: "support@stephaniekayephotography.com",
+    // Send email to admin
+    await client.sendEmail({
+      From: email,
+      To: ADMIN_EMAIL,
+      Subject: `New contact form submission from ${name}`,
+      HtmlBody: `<p><strong>Name:</strong> ${name}</p>
+                 <p><strong>Email:</strong> ${email}</p>
+                 <p><strong>Package:</strong> ${pkg}</p>
+                 <p><strong>Questions:</strong> ${questions}</p>`,
+    });
+
+    // Send confirmation email to user
+    await client.sendEmail({
+      From: ADMIN_EMAIL,
       To: email,
-      Subject: "📸 Thanks for contacting Stephanie Kaye Photography!",
-      TextBody: `Hi ${name},\n\nThank you for reaching out about the ${pkg} package.\n\nWe’ll get back to you shortly!\n\nBest,\nStephanie`,
-      HtmlBody: `
-        <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
-          <h2>Hi ${name},</h2>
-          <p>Thank you for reaching out about the <strong>${pkg}</strong> package.</p>
-          <p>We’ll get back to you shortly!</p>
-          <p>Warmly,<br/>Stephanie Kaye Photography</p>
-          <hr style="margin-top:20px;"/>
-          <p style="font-size:12px;color:#777;">Automated confirmation. Do not reply.</p>
-        </div>
-      `,
-    };
+      Subject: "Thank you for contacting us!",
+      HtmlBody: `<p>Hi ${name},</p>
+                 <p>Thanks for reaching out! We received your message regarding the ${pkg} package and will get back to you shortly.</p>
+                 <p>— Admin</p>`,
+    });
 
-    // --- Email to admin ---
-    const adminEmail = {
-      From: "support@stephaniekayephotography.com",
-      To: "nathan@stephaniekayephotography.com",
-      Subject: `📩 New contact form submission from ${name}`,
-      TextBody: `From: ${name} <${email}>\nPackage: ${pkg}\nQuestions: ${questions || "N/A"}`,
-      HtmlBody: `
-        <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
-          <h3>📩 New Contact Form Submission</h3>
-          <p><strong>From:</strong> ${name} &lt;${email}&gt;</p>
-          <p><strong>Package:</strong> ${pkg}</p>
-          <p><strong>Questions:</strong> ${questions || "N/A"}</p>
-        </div>
-      `,
-    };
-
-    // Send both emails in parallel
-    const [clientRes, adminRes] = await Promise.all([
-      client.sendEmail(clientEmail),
-      client.sendEmail(adminEmail),
-    ]);
-
-    return NextResponse.json({ success: true, clientRes, adminRes }, { status: 200 });
-  } catch (error) {
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
     console.error("Error in /api/contact:", error);
     return NextResponse.json(
-      { success: false, errors: { message: ["Internal server error"] } },
+      { success: false, error: error.message || "Internal server error" },
       { status: 500 }
     );
   }
