@@ -55,7 +55,14 @@ export default function ContactForm() {
         body: JSON.stringify(data),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to send message");
+
+      if (!res.ok) {
+        // Parse Zod/API errors
+        const errorMessage =
+          json.errors?.message?.join(", ") || json.error || "Failed to send message";
+        throw new Error(errorMessage);
+      }
+
       return json;
     },
     onSuccess: () => {
@@ -73,9 +80,9 @@ export default function ContactForm() {
 
   if (!mounted) return null;
 
-  // Shared input classes
   const sharedInputClasses =
-  "w-full px-3 sm:px-4 py-3 rounded-md outline-none bg-black text-white placeholder-gray-400 border border-gray-600 shadow-inner shadow-black/25 focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50 transition-all duration-300";
+    "w-full px-3 sm:px-4 py-3 rounded-md outline-none bg-black text-white placeholder-gray-400 border border-gray-600 shadow-inner shadow-black/25 focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50 transition-all duration-300";
+
   return (
     <section
       id="contact"
@@ -148,9 +155,9 @@ export default function ContactForm() {
                     <FormControl>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger className={sharedInputClasses}>
-                          <SelectValue placeholder="Select Package*" className ="cursor-pointer"/>
+                          <SelectValue placeholder="Select Package*" className="cursor-pointer"/>
                         </SelectTrigger>
-                        <SelectContent className="bg-black text-white border border-gray-600 rounded-md shadow-inner shadow-black/25 z-50 mt-1 text-sm sm:text-base max-h-60 overflow-y-autobg-black text-white border border-gray-600 rounded-md shadow-inner shadow-black/25 z-50 mt-1 text-sm sm:text-base max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black  ">
+                        <SelectContent className="bg-black text-white border border-gray-600 rounded-md shadow-inner shadow-black/25 z-50 mt-1 text-sm sm:text-base max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black">
                           {["standard", "video", "alacarte"].map((pkg) => (
                             <SelectItem
                               key={pkg}
@@ -158,22 +165,17 @@ export default function ContactForm() {
                               className={`px-3 sm:px-4 py-2 hover:bg-gray-800 text-white cursor-pointer flex items-center transition-transform duration-200 hover:scale-[1.02] ${
                                 form.getValues("package") === pkg ? "font-semibold bg-gray-900" : ""
                               }`}
-                            ><span className="ml-4">
-                              {pkg === "standard"
-                                ? "Standard Package"
-                                : pkg === "video"
-                                ? "Video Package"
-                                : "A la carte"}
-                                  </span>
+                            >
+                              <span className="ml-4">
+                                {pkg === "standard"
+                                  ? "Standard Package"
+                                  : pkg === "video"
+                                  ? "Video Package"
+                                  : "A la carte"}
+                              </span>
                             </SelectItem>
                           ))}
                         </SelectContent>
-                        <style jsx>{`
-  /* Scrollbar hover effect */
-  .scrollbar-thumb-gray-700:hover {
-    background-color: #9ca3af; /* lighter gray on hover */
-  }
-`}</style>
                       </Select>
                     </FormControl>
                     <p className="text-xs sm:text-sm text-neutral-500 mt-1">
