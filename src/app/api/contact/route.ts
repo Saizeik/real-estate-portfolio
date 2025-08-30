@@ -1,60 +1,51 @@
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import * as postmark from "postmark"; // fixed import
+// src/app/api/contact/route.ts
+import { NextResponse } from "next/server";
+import { contactFormSchema, type ContactFormData } from "@/types/contact";
+import { Client } from "postmark";
 
-const contactFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  package: z.string().min(1, "Package selection is required"),
-  questions: z.string().optional(),
-  honey: z.string().optional(),
-});
+// Initialize Postmark client
+const client = new Client(process.env.POSTMARK_API_TOKEN!);
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "";
-
-const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN!);
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    if (body.honey) {
-      return NextResponse.json({ success: false, error: "Spam detected" }, { status: 400 });
-    }
-
+    // Validate request body
     const parsed = contactFormSchema.safeParse(body);
     if (!parsed.success) {
-      // format Zod errors
-      const formattedErrors = parsed.error.format();
-      return NextResponse.json({ success: false, errors: formattedErrors }, { status: 400 });
+      // Return structured field errors
+      const fieldErrors = parsed.error.format();
+      return NextResponse.json(
+        { success: false, errors: fieldErrors },
+        { status: 400 }
+      );
     }
 
     const { name, email, package: pkg, questions } = parsed.data;
 
+    // --- Send Admin Email ---
     await client.sendEmail({
-      From: email,
-      To: ADMIN_EMAIL,
-      Subject: `New contact form submission from ${name}`,
-      HtmlBody: `<p><strong>Name:</strong> ${name}</p>
-                 <p><strong>Email:</strong> ${email}</p>
-                 <p><strong>Package:</strong> ${pkg}</p>
-                 <p><strong>Questions:</strong> ${questions}</p>`,
+      From: process.env.POSTMARK_SENDER!, // your verified sender
+      To: process.env.POSTMARK_ADMIN!,    // admin email
+      Subject: `New Contact Form Submission from ${name}`,
+      TextBody: `Name: ${name}\nEmail: ${email}\nPackage: ${pkg}\nQuestions: ${questions}`,
     });
 
-    await client.sendEmail({
-      From: ADMIN_EMAIL,
-      To: email,
-      Subject: " 📸 Thank you for contacting us!",
-      HtmlBody: `<p>Hi ${name},</p>
-                 <p>Thanks for reaching out! We received your message regarding the ${pkg} package and will get back to you shortly.</p>
-                 <p>— Admin</p>`,
-    });
+    // --- Send User Confirmation Email (only if email is valid) ---
+    if (email && email.trim() !== "") {
+      await client.sendEmail({
+        From: process.env.POSTMARK_SENDER!,
+        To: email,
+        Subject: "📸 Thanks for contacting us!",
+        TextBody: `Hi ${name},\n\nThank you for reaching out! We received your message and will get back to you shortly.\n\nYour message:\n${questions}\n\n- The Team`,
+      });
+    }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error("Error in /api/contact:", error);
+  } catch (err: any) {
+    console.error("Contact API error:", err);
     return NextResponse.json(
-      { success: false, error: error.message || "Internal server error" },
+      { success: false, error: err.message || "Internal Server Error" },
       { status: 500 }
     );
   }
