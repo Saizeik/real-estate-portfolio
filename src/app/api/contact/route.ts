@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import postmark from "postmark";
+import * as postmark from "postmark"; // fixed import
 
-// Zod schema for validation
 const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
@@ -11,30 +10,27 @@ const contactFormSchema = z.object({
   honey: z.string().optional(),
 });
 
-// Admin email
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "";
 
-// Initialize Postmark client
 const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN!);
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Honeypot check
     if (body.honey) {
       return NextResponse.json({ success: false, error: "Spam detected" }, { status: 400 });
     }
 
-    // Validate input
     const parsed = contactFormSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ success: false, errors: parsed.error.errors }, { status: 400 });
+      // format Zod errors
+      const formattedErrors = parsed.error.format();
+      return NextResponse.json({ success: false, errors: formattedErrors }, { status: 400 });
     }
 
     const { name, email, package: pkg, questions } = parsed.data;
 
-    // Send email to admin
     await client.sendEmail({
       From: email,
       To: ADMIN_EMAIL,
@@ -45,11 +41,10 @@ export async function POST(req: NextRequest) {
                  <p><strong>Questions:</strong> ${questions}</p>`,
     });
 
-    // Send confirmation email to user
     await client.sendEmail({
       From: ADMIN_EMAIL,
       To: email,
-      Subject: "Thank you for contacting us!",
+      Subject: " 📸 Thank you for contacting us!",
       HtmlBody: `<p>Hi ${name},</p>
                  <p>Thanks for reaching out! We received your message regarding the ${pkg} package and will get back to you shortly.</p>
                  <p>— Admin</p>`,

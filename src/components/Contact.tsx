@@ -57,12 +57,17 @@ export default function ContactForm() {
       const json = await res.json();
 
       if (!res.ok) {
-        if (json.errors && Array.isArray(json.errors)) {
-          const messages = json.errors
-            .map((err: any) => `${err.path.join(".")}: ${err.message}`)
-            .join(", ");
-          throw new Error(messages);
+        // Structured Zod errors from route.ts
+        if (json.errors && typeof json.errors === "object") {
+          // Map field errors into react-hook-form
+          Object.entries(json.errors).forEach(([field, val]: any) => {
+            if (field in form.getValues()) {
+              const message = val?._errors?.[0] ?? "Invalid input";
+              form.setError(field as keyof ContactFormData, { type: "server", message });
+            }
+          });
         }
+
         throw new Error(json.error || "Failed to send message");
       }
       return json;
@@ -72,7 +77,10 @@ export default function ContactForm() {
       form.reset();
     },
     onError: (error: any) => {
-      toast.error(error.message || "Something went wrong. Please try again.");
+      if (!Object.keys(form.formState.errors).length) {
+        // Only show toast if no inline field errors
+        toast.error(error.message || "Something went wrong. Please try again.");
+      }
     },
   });
 
