@@ -1,65 +1,244 @@
-import { NextRequest, NextResponse } from "next/server";
-import { ServerClient } from "postmark";
+"use client";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+
+import { useContactForm } from "@/context/ContactFormContext";
 import { contactFormSchema, type ContactFormData } from "@/types/contact";
+import { toast } from "sonner";
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const parsed = contactFormSchema.parse(body);
+export default function ContactForm() {
+  const [mounted, setMounted] = useState(false);
+  const { selectedPackage } = useContactForm();
 
-    const { name, email, package: pkg, questions } = parsed;
+  const form = useForm<ContactFormData>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      package: selectedPackage || "",
+      questions: "",
+      honey: "",
+    },
+  });
 
-    const client = new ServerClient(process.env.POSTMARK_API_KEY as string);
+  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    if (selectedPackage) form.setValue("package", selectedPackage);
+  }, [selectedPackage, form]);
 
-    // --- Email to client ---
-    const clientEmail = {
-      From: "support@stephaniekayephotography.com", // must be verified in Postmark
-      To: email,
-      Subject: "📸 Thanks for contacting Stephanie Kaye Photography!",
-      TextBody: `Hi ${name},\n\nThank you for reaching out about the ${pkg} package.\n\nWe’ll get back to you shortly!\n\nBest,\nStephanie`,
-      HtmlBody: `
-        <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
-          <h2 style="color:#444;">Hi ${name},</h2>
-          <p>Thank you for reaching out about the <strong>${pkg}</strong> package.</p>
-          <p>We’ll get back to you shortly with more details!</p>
-          <br />
-          <p>Warmly,<br/>Stephanie Kaye Photography</p>
-          <hr style="margin-top:20px;"/>
-          <p style="font-size:12px;color:#777;">This is an automated confirmation. Please don’t reply directly to this email.</p>
-        </div>
-      `,
-    };
+  const contactMutation = useMutation({
+    mutationFn: async (data: ContactFormData) => {
+      const res = await fetch("/api/contact/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to send message");
+      return json;
+    },
+    onSuccess: () => {
+      toast.success("Message sent successfully!");
+      form.reset();
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Something went wrong. Please try again.");
+    },
+  });
 
-    // --- Email to admin (you) ---
-    const adminEmail = {
-      From: "support@stephaniekayephotography.com", // must be verified
-      To: "nathan@stephaniekayephotography.com",
-      Subject: `📩 New contact form submission from ${name}`,
-      TextBody: `From: ${name} <${email}>\n\nPackage: ${pkg}\n\nQuestions: ${
-        questions || "N/A"
-      }`,
-      HtmlBody: `
-        <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
-          <h3>📩 New Contact Form Submission</h3>
-          <p><strong>From:</strong> ${name} &lt;${email}&gt;</p>
-          <p><strong>Package:</strong> ${pkg}</p>
-          <p><strong>Questions:</strong><br/>${questions || "N/A"}</p>
-        </div>
-      `,
-    };
+  const onSubmit = (data: ContactFormData) => {
+    contactMutation.mutate(data);
+  };
 
-    // Send both emails in parallel
-    const [clientRes, adminRes] = await Promise.all([
-      client.sendEmail(clientEmail),
-      client.sendEmail(adminEmail),
-    ]);
+  if (!mounted) return null;
 
-    return NextResponse.json(
-      { success: true, clientRes, adminRes },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Error in /api/contact:", error);
-    return NextResponse.json({ success: false, error }, { status: 500 });
+  // Shared input classes
+  const sharedInputClasses =
+  "w-full px-3 sm:px-4 py-3 rounded-md outline-none bg-black text-white placeholder-gray-400 border border-gray-600 shadow-inner shadow-black/25 focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50 transition-all duration-300";
+  return (
+    <section
+      id="contact"
+      className="py-12 sm:py-16 bg-gradient-to-b from-neutral-50 to-white"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto bg-white p-8 sm:p-12 rounded-xl shadow-2xl border border-neutral-100">
+          {/* Header */}
+          <div className="text-center mb-12 sm:mb-16 space-y-3 animate-fadeInUp">
+            <h2 className="Rajdhani text-2xl sm:text-3xl md:text-4xl font-semibold text-neutral-800">
+              Let's Work Together!
+            </h2>
+            <h3 className="text-lg sm:text-xl font-semibold text-neutral-800">
+              Get in Touch
+            </h3>
+            <p className="text-neutral-600 font-semibold max-w-2xl mx-auto text-sm sm:text-base">
+              If you don't hear from me within 2 business days after submitting
+              your inquiry, feel free to contact me directly at:
+            </p>
+            <div className="mt-3 space-y-1 sm:space-y-2 text-sm sm:text-base">
+              <p className="text-neutral-600">
+                <span className="font-semibold">Phone:</span>{" "}
+                <a
+                  href="tel:5202223943"
+                  className="text-indigo-600 font-bold hover:underline"
+                >
+                  (520) 222-3943
+                </a>
+              </p>
+            </div>
+          </div>
+
+          {/* Form */}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Name & Email */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                {["name", "email"].map((fieldName) => (
+                  <FormField
+                    key={fieldName}
+                    control={form.control}
+                    name={fieldName as "name" | "email"}
+                    render={({ field }) => (
+                      <FormItem className="animate-fadeInUp">
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type={fieldName === "email" ? "email" : "text"}
+                            placeholder={
+                              fieldName === "name"
+                                ? "Your Name*"
+                                : "Your Email*"
+                            }
+                            className={sharedInputClasses}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* Package Select */}
+              <FormField
+                control={form.control}
+                name="package"
+                render={({ field }) => (
+                  <FormItem className="animate-fadeInUp">
+                    <FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger className={sharedInputClasses}>
+                          <SelectValue placeholder="Select Package*" className ="cursor-pointer"/>
+                        </SelectTrigger>
+                        <SelectContent className="bg-black text-white border border-gray-600 rounded-md shadow-inner shadow-black/25 z-50 mt-1 text-sm sm:text-base max-h-60 overflow-y-autobg-black text-white border border-gray-600 rounded-md shadow-inner shadow-black/25 z-50 mt-1 text-sm sm:text-base max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black  ">
+                          {["standard", "video", "alacarte"].map((pkg) => (
+                            <SelectItem
+                              key={pkg}
+                              value={pkg}
+                              className={`px-3 sm:px-4 py-2 hover:bg-gray-800 text-white cursor-pointer flex items-center transition-transform duration-200 hover:scale-[1.02] ${
+                                form.getValues("package") === pkg ? "font-semibold bg-gray-900" : ""
+                              }`}
+                            ><span className="ml-4">
+                              {pkg === "standard"
+                                ? "Standard Package"
+                                : pkg === "video"
+                                ? "Video Package"
+                                : "A la carte"}
+                                  </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                        <style jsx>{`
+  /* Scrollbar hover effect */
+  .scrollbar-thumb-gray-700:hover {
+    background-color: #9ca3af; /* lighter gray on hover */
   }
+`}</style>
+                      </Select>
+                    </FormControl>
+                    <p className="text-xs sm:text-sm text-neutral-500 mt-1">
+                      *If A la carte please specify in the questions box.
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Questions */}
+              <FormField
+                control={form.control}
+                name="questions"
+                render={({ field }) => (
+                  <FormItem className="animate-fadeInUp">
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        rows={5}
+                        placeholder="Questions or special requests"
+                        className={sharedInputClasses + " resize-vertical"}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Honeypot */}
+              <FormField
+                control={form.control}
+                name="honey"
+                render={({ field }) => (
+                  <FormItem className="hidden" aria-hidden="true" tabIndex={-1}>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        spellCheck={false}
+                        className="opacity-0 h-0 w-0 pointer-events-none absolute"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Submit Button */}
+              <div className="animate-fadeInUp">
+                <Button
+                  type="submit"
+                  disabled={contactMutation.status === "pending"}
+                  className="w-full px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-md transition-all duration-200 hover:scale-[1.03] active:scale-95 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 outline-none shadow-lg relative overflow-hidden cursor-pointer"
+                >
+                  {contactMutation.status === "pending"
+                    ? "Sending..."
+                    : "Send Message"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </div>
+    </section>
+  );
 }
