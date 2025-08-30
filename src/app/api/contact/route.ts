@@ -1,65 +1,45 @@
-// app/api/contact/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
-import { contactFormSchema, type ContactFormData } from "@/types/contact";
-import postmark from "postmark";
+import { ServerClient } from "postmark";
 
-// Initialize Postmark client (use Server API Token from Postmark dashboard)
-const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN as string);
+// Initialize Postmark client
+const client = new ServerClient(process.env.POSTMARK_API_TOKEN!);
 
-export async function POST(req: NextRequest) {
+// Validation schema
+const ContactSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  message: z.string().min(1, "Message is required"),
+});
+
+export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const parsed = ContactSchema.safeParse(body);
 
-    // Validate against your schema
-    const parsed = contactFormSchema.parse(body) as ContactFormData;
-
-    // Prevent spam via hidden honey field
-    if (parsed.honey) {
-      return NextResponse.json({ success: true }, { status: 200 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, errors: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
     }
 
-    // Email to the user (confirmation copy)
-    const clientEmail = {
-      From: "support@stephaniekayephotography.com", // must be verified in Postmark
-      To: parsed.email,
-      Subject: "📸 Thanks for contacting Stephanie Kaye Photography!",
-      TextBody: `Hi ${parsed.name},
+    const { name, email, message } = parsed.data;
 
-Thank you for reaching out about the ${parsed.package} package.
-We’ll be in touch soon!`,
-    };
+    // Send email via Postmark
+    await client.sendEmail({
+      From: process.env.POSTMARK_FROM_EMAIL!,
+      To: process.env.POSTMARK_TO_EMAIL!,
+      Subject: `New Contact Form Submission from ${name}`,
+      TextBody: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+      MessageStream: "outbound", // default stream
+    });
 
-    // Email to admin (notification)
-    const adminEmail = {
-      From: "support@stephaniekayephotography.com", // must be verified in Postmark
-      To: "nathan@stephaniekayephotography.com",
-      Subject: `New inquiry from ${parsed.name}`,
-      TextBody: `Name: ${parsed.name}
-Email: ${parsed.email}
-Package: ${parsed.package}
-Questions: ${parsed.questions || "None"}`,
-    };
-
-    // Try sending both at once
-    const [clientRes, adminRes] = await Promise.allSettled([
-      client.sendEmail(clientEmail),
-      client.sendEmail(adminEmail),
-    ]);
-
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error) {
+    console.error("Error in /api/contact:", error);
     return NextResponse.json(
-      { success: true, clientRes, adminRes },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    // Postmark often nests errors under Error.details or Error.message
-    console.error(
-      "Error in /api/contact:",
-      error?.message || error?.ErrorCode || error
-    );
-
-    return NextResponse.json(
-      { success: false, error: error?.message || error },
+      { success: false, error: "Internal server error" },
       { status: 500 }
     );
   }
