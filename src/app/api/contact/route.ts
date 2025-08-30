@@ -3,7 +3,7 @@ import { z } from "zod";
 import { ServerClient } from "postmark";
 
 // Initialize Postmark client
-const client = new ServerClient(process.env.POSTMARK_API_TOKEN!);
+const client = new ServerClient(process.env.POSTMARK_API_KEY!);
 
 // Validation schema
 const ContactSchema = z.object({
