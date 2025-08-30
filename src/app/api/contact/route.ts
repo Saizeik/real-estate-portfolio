@@ -1,55 +1,48 @@
+// app/api/contact/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { ServerClient } from "postmark";
+import { z } from "zod";
 import { contactFormSchema, type ContactFormData } from "@/types/contact";
+import postmark from "postmark";
+
+// Initialize Postmark client (use Server API Token from Postmark dashboard)
+const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN as string);
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const parsed = contactFormSchema.parse(body);
 
-    const { name, email, package: pkg, questions } = parsed;
+    // Validate against your schema
+    const parsed = contactFormSchema.parse(body) as ContactFormData;
 
-    const client = new ServerClient(process.env.POSTMARK_API_KEY as string);
+    // Prevent spam via hidden honey field
+    if (parsed.honey) {
+      return NextResponse.json({ success: true }, { status: 200 });
+    }
 
-    // --- Email to client ---
+    // Email to the user (confirmation copy)
     const clientEmail = {
       From: "support@stephaniekayephotography.com", // must be verified in Postmark
-      To: email,
+      To: parsed.email,
       Subject: "📸 Thanks for contacting Stephanie Kaye Photography!",
-      TextBody: `Hi ${name},\n\nThank you for reaching out about the ${pkg} package.\n\nWe’ll get back to you shortly!\n\nBest,\nStephanie`,
-      HtmlBody: `
-        <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
-          <h2 style="color:#444;">Hi ${name},</h2>
-          <p>Thank you for reaching out about the <strong>${pkg}</strong> package.</p>
-          <p>We’ll get back to you shortly with more details!</p>
-          <br />
-          <p>Warmly,<br/>Stephanie Kaye Photography</p>
-          <hr style="margin-top:20px;"/>
-          <p style="font-size:12px;color:#777;">This is an automated confirmation. Please don’t reply directly to this email.</p>
-        </div>
-      `,
+      TextBody: `Hi ${parsed.name},
+
+Thank you for reaching out about the ${parsed.package} package.
+We’ll be in touch soon!`,
     };
 
-    // --- Email to admin (you) ---
+    // Email to admin (notification)
     const adminEmail = {
-      From: "support@stephaniekayephotography.com", // must be verified
+      From: "support@stephaniekayephotography.com", // must be verified in Postmark
       To: "nathan@stephaniekayephotography.com",
-      Subject: `📩 New contact form submission from ${name}`,
-      TextBody: `From: ${name} <${email}>\n\nPackage: ${pkg}\n\nQuestions: ${
-        questions || "N/A"
-      }`,
-      HtmlBody: `
-        <div style="font-family: Arial, sans-serif; line-height:1.5; color:#333;">
-          <h3>📩 New Contact Form Submission</h3>
-          <p><strong>From:</strong> ${name} &lt;${email}&gt;</p>
-          <p><strong>Package:</strong> ${pkg}</p>
-          <p><strong>Questions:</strong><br/>${questions || "N/A"}</p>
-        </div>
-      `,
+      Subject: `New inquiry from ${parsed.name}`,
+      TextBody: `Name: ${parsed.name}
+Email: ${parsed.email}
+Package: ${parsed.package}
+Questions: ${parsed.questions || "None"}`,
     };
 
-    // Send both emails in parallel
-    const [clientRes, adminRes] = await Promise.all([
+    // Try sending both at once
+    const [clientRes, adminRes] = await Promise.allSettled([
       client.sendEmail(clientEmail),
       client.sendEmail(adminEmail),
     ]);
@@ -58,8 +51,16 @@ export async function POST(req: NextRequest) {
       { success: true, clientRes, adminRes },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Error in /api/contact:", error);
-    return NextResponse.json({ success: false, error }, { status: 500 });
+  } catch (error: any) {
+    // Postmark often nests errors under Error.details or Error.message
+    console.error(
+      "Error in /api/contact:",
+      error?.message || error?.ErrorCode || error
+    );
+
+    return NextResponse.json(
+      { success: false, error: error?.message || error },
+      { status: 500 }
+    );
   }
 }
